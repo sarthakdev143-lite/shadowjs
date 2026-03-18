@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@shadowjs/compiler": ["packages/compiler/src/index.ts"],
+      "@shadowjs/core": ["packages/core/src/index.ts"],
+      "@shadowjs/runtime": ["packages/runtime/src/index.ts"],
+      "@shadowjs/state": ["packages/state/src/index.ts"]
+    },
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "declaration": true,
+    "skipLibCheck": true
+  }
+}

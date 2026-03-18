@@ -1,0 +1,101 @@
+import { createSignal, type Accessor } from "@shadowjs/core";
+
+export interface QueryState<T> {
+  data: T | null;
+  error: Error | null;
+  loading: boolean;
+}
+
+type QueryRunner = () => Promise<void>;
+
+const queryRegistry = new Map<string, Set<QueryRunner>>();
+let nextAnonymousQueryId = 0;
+
+function getQueryKey(asyncFunction: () => Promise<unknown>, key?: string): string {
+  if (key !== undefined) {
+    return key;
+  }
+
+  if (asyncFunction.name.length > 0) {
+    return asyncFunction.name;
+  }
+
+  const fallbackKey = `query-${nextAnonymousQueryId}`;
+  nextAnonymousQueryId += 1;
+  return fallbackKey;
+}
+
+function normalizeError(error: unknown): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  return new Error(String(error));
+}
+
+function registerQuery(key: string, runner: QueryRunner): void {
+  const existing = queryRegistry.get(key);
+
+  if (existing !== undefined) {
+    existing.add(runner);
+    return;
+  }
+
+  queryRegistry.set(key, new Set<QueryRunner>([runner]));
+}
+
+export async function invalidateQueryKeys(keys: string[]): Promise<void> {
+  const queuedRunners = new Set<QueryRunner>();
+
+  for (const key of keys) {
+    const runners = queryRegistry.get(key);
+
+    if (runners === undefined) {
+      continue;
+    }
+
+    for (const runner of runners) {
+      queuedRunners.add(runner);
+    }
+  }
+
+  await Promise.allSettled(Array.from(queuedRunners, (runner) => runner()));
+}
+
+export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): Accessor<QueryState<T>> {
+  const queryKey = getQueryKey(asyncFunction, key);
+  const [state, setState] = createSignal<QueryState<T>>({
+    data: null,
+    error: null,
+    loading: true
+  });
+
+  const run = async (): Promise<void> => {
+    setState((previousState) => ({
+      data: previousState.data,
+      error: null,
+      loading: true
+    }));
+
+    try {
+      const data = await asyncFunction();
+
+      setState({
+        data,
+        error: null,
+        loading: false
+      });
+    } catch (error) {
+      setState({
+        data: null,
+        error: normalizeError(error),
+        loading: false
+      });
+    }
+  };
+
+  registerQuery(queryKey, run);
+  void run();
+
+  return state;
+}

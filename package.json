@@ -1,0 +1,21 @@
+{
+  "name": "shadowjs",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "corepack pnpm -r --if-present build",
+    "test": "corepack pnpm -r --if-present test",
+    "typecheck": "corepack pnpm -r --if-present typecheck",
+    "dev": "corepack pnpm --filter @shadowjs/demo dev"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.0.0",
+    "jsdom": "^26.0.0",
+    "playwright-core": "^1.58.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "packageManager": "pnpm@10.8.1+sha512.c50088ba998c67b8ca8c99df8a5e02fd2ae2e2b29aaf238feaa9e124248d3f48f9fb6db2424949ff901cffbb5e0f0cc1ad6aedb602cd29450751d11c35023677"
+}

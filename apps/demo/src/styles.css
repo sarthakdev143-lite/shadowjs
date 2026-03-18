@@ -1,0 +1,214 @@
+:root {
+  color: #f4efe7;
+  font-family: "Trebuchet MS", "Aptos", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(255, 168, 76, 0.28), transparent 30rem),
+    linear-gradient(180deg, #141114 0%, #09080b 100%);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 132, 55, 0.14), transparent 25rem),
+    radial-gradient(circle at bottom right, rgba(255, 226, 156, 0.1), transparent 22rem),
+    linear-gradient(180deg, #141114 0%, #09080b 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.shell {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.panel {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1.5rem;
+  background: linear-gradient(180deg, rgba(32, 24, 30, 0.92), rgba(19, 15, 21, 0.88));
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto -4rem -5rem auto;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 176, 89, 0.4), transparent 68%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f9b96d;
+}
+
+.hero h1,
+.panel h2 {
+  margin: 0;
+  font-weight: 700;
+}
+
+.hero h1 {
+  max-width: 18ch;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 0.95;
+}
+
+.lede,
+.panel-head p {
+  margin: 0;
+  max-width: 56ch;
+  color: rgba(244, 239, 231, 0.72);
+}
+
+.counter-card,
+.composer,
+.feed {
+  padding: 1.5rem;
+}
+
+.counter-card {
+  display: grid;
+  gap: 0.65rem;
+  max-width: 15rem;
+  margin-top: 1.5rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.counter-label,
+.field-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(244, 239, 231, 0.62);
+}
+
+.counter-value {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.counter-button,
+.add-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.85rem 1.1rem;
+  color: #1b130e;
+  background: linear-gradient(135deg, #ffdd9a, #ff9960);
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+
+.counter-button:hover,
+.add-button:hover {
+  transform: translateY(-1px);
+}
+
+.counter-button:disabled,
+.add-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+.composer,
+.feed {
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-head {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.post-input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 0.95rem 1rem;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.post-input:focus {
+  outline: 2px solid rgba(255, 177, 104, 0.7);
+  outline-offset: 2px;
+}
+
+.post-list {
+  display: grid;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.post-id {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffbf7f;
+}
+
+.post-title {
+  font-size: 1rem;
+}
+
+.status {
+  color: rgba(244, 239, 231, 0.68);
+}
+
+.error {
+  color: #ff9f8f;
+}
+
+@media (min-width: 860px) {
+  .shell {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+
+  .hero {
+    grid-column: 1 / -1;
+  }
+}
