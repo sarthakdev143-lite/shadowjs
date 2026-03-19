@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShadowJS Documentation</title>
+    <style>
+      :root {
+        --bg: #09080b;
+        --panel: #121117;
+        --panel-soft: #17151d;
+        --border: #2a2731;
+        --text: #f4efe7;
+        --muted: #c7c1b7;
+        --accent: #f9b96d;
+        --accent-soft: rgba(249, 185, 109, 0.12);
+        --code: #f5ddbb;
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font: 16px/1.7 "Segoe UI", "Aptos", Arial, sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(249, 185, 109, 0.08), transparent 24rem),
+          linear-gradient(180deg, #111015 0%, var(--bg) 100%);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      code,
+      pre {
+        font-family: Consolas, "Cascadia Code", monospace;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 1.5rem;
+        width: min(1200px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 1rem 0 2.5rem;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 1rem;
+        align-self: start;
+        padding: 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: rgba(18, 17, 23, 0.92);
+        box-shadow: var(--shadow);
+      }
+
+      .sidebar h1 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      .sidebar p {
+        margin: 0.75rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .sidebar nav {
+        margin-top: 1.25rem;
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .sidebar nav a {
+        padding: 0.55rem 0.75rem;
+        border-radius: 10px;
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .sidebar nav a:hover,
+      .sidebar nav a:focus-visible {
+        color: var(--text);
+        background: var(--accent-soft);
+        outline: none;
+      }
+
+      .sidebar .source-note {
+        margin-top: 1.25rem;
+        padding: 0.9rem 1rem;
+        border-left: 3px solid var(--accent);
+        border-radius: 0 10px 10px 0;
+        background: var(--panel-soft);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .content {
+        min-width: 0;
+      }
+
+      .page-header,
+      .section {
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: rgba(18, 17, 23, 0.94);
+        box-shadow: var(--shadow);
+      }
+
+      .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+      }
+
+      .page-header p {
+        max-width: 70ch;
+        color: var(--muted);
+      }
+
+      .intro-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.85rem;
+        margin-top: 1rem;
+      }
+
+      .intro-card {
+        padding: 1rem;
+        border-radius: 14px;
+        background: var(--panel-soft);
+      }
+
+      .intro-card strong {
+        display: block;
+        color: var(--accent);
+        font-size: 0.86rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .intro-card span {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--muted);
+      }
+
+      .sections {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .section h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.7rem;
+      }
+
+      .section h3 {
+        margin: 1.2rem 0 0.35rem;
+        font-size: 1.05rem;
+      }
+
+      .section p {
+        margin: 0.5rem 0 0;
+        color: var(--muted);
+      }
+
+      .section ul,
+      .section ol {
+        margin: 0.75rem 0 0;
+        padding-left: 1.2rem;
+        color: var(--muted);
+      }
+
+      .section li + li {
+        margin-top: 0.5rem;
+      }
+
+      .callout {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 14px;
+        background: var(--panel-soft);
+      }
+
+      .callout strong {
+        color: var(--accent);
+      }
+
+      .callout p {
+        margin: 0.35rem 0 0;
+      }
+
+      .code-block {
+        margin-top: 1rem;
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: #0d0c11;
+      }
+
+      .code-block pre {
+        margin: 0;
+        padding: 1rem 1.1rem;
+        color: var(--code);
+        line-height: 1.55;
+        font-size: 0.93rem;
+      }
+
+      .inline-code {
+        padding: 0.12rem 0.38rem;
+        border-radius: 6px;
+        color: var(--code);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .two-column {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .summary-box {
+        padding: 1rem;
+        border-radius: 14px;
+        background: var(--panel-soft);
+      }
+
+      .summary-box h3 {
+        margin-top: 0;
+      }
+
+      .summary-box ul {
+        margin-top: 0.5rem;
+      }
+
+      footer {
+        margin-top: 1rem;
+        padding: 1rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .two-column,
+        .intro-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .layout {
+          width: min(100% - 1rem, 100%);
+          gap: 1rem;
+        }
+
+        .page-header,
+        .section,
+        .sidebar {
+          padding: 1.1rem;
+          border-radius: 14px;
+        }
+
+        .page-header h2 {
+          font-size: 1.6rem;
+        }
+
+        .section h2 {
+          font-size: 1.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h1>ShadowJS Documentation</h1>
+        <p>
+          Beginner-friendly notes for the current implementation in this repository.
+          This is a documentation page, not a marketing landing page.
+        </p>
+        <nav aria-label="Section navigation">
+          <a href="#what-is-shadowjs">1. What is ShadowJS</a>
+          <a href="#signals">2. Signals</a>
+          <a href="#scheduler">3. Scheduler</a>
+          <a href="#jsx-runtime">4. JSX Runtime</a>
+          <a href="#state-layer">5. State Layer</a>
+          <a href="#compiler-rpc">6. Compiler / RPC</a>
+        </nav>
+        <div class="source-note">
+          Source of truth: the current <span class="inline-code">README.md</span> and the code in
+          <span class="inline-code">packages/core</span>, <span class="inline-code">packages/runtime</span>,
+          <span class="inline-code">packages/state</span>, and <span class="inline-code">packages/compiler</span>.
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="page-header">
+          <h2>ShadowJS, explained from the beginning</h2>
+          <p>
+            ShadowJS is a TypeScript-first JavaScript framework in this repository. Its main idea is simple:
+            when some data changes, only the code that depends on that exact piece of data should update.
+            The framework does that with signals, a microtask scheduler, a small JSX-to-DOM runtime,
+            a signal-based state layer, and a compiler plugin that turns server imports into RPC calls.
+          </p>
+          <div class="intro-grid">
+            <div class="intro-card">
+              <strong>Audience</strong>
+              <span>This page is written for someone new to the framework and new to the codebase.</span>
+            </div>
+            <div class="intro-card">
+              <strong>Goal</strong>
+              <span>Explain what each part does before expecting you to read the source.</span>
+            </div>
+            <div class="intro-card">
+              <strong>Format</strong>
+              <span>You can read this page top to bottom and build the mental model in order.</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="sections">
+          <section class="section" id="what-is-shadowjs">
+            <h2>1. What is ShadowJS</h2>
+            <p>
+              According to the current README, ShadowJS is a framework with four main parts:
+              fine-grained signals, a DOM runtime, state primitives, and a Vite compiler plugin
+              for <span class="inline-code">.server.ts</span> imports.
+            </p>
+            <p>
+              In practical terms, ShadowJS tries to make UI updates more direct. Instead of re-running
+              a whole component tree and diffing the result, it tracks exactly which computation read which value.
+              Then it updates only the affected computation or DOM binding.
+            </p>
+            <div class="two-column">
+              <div>
+                <h3>Packages in this repository</h3>
+                <ul>
+                  <li><strong>Core:</strong> signals, effects, memos, and the scheduler.</li>
+                  <li><strong>Runtime:</strong> JSX descriptors, DOM creation, and mounting.</li>
+                  <li><strong>State:</strong> query, mutation, and store helpers built on signals.</li>
+                  <li><strong>Compiler:</strong> Babel-based analysis and a Vite plugin for RPC generation.</li>
+                </ul>
+              </div>
+              <aside class="summary-box">
+                <h3>Short version</h3>
+                <ul>
+                  <li>Signals track data dependencies.</li>
+                  <li>The scheduler batches updates.</li>
+                  <li>The runtime updates only the exact DOM node that changed.</li>
+                  <li>The compiler removes manual client-side fetch wiring for server functions.</li>
+                </ul>
+              </aside>
+            </div>
+          </section>
+
+          <section class="section" id="signals">
+            <h2>2. Signals</h2>
+            <p>
+              A signal is a small container for a value. It gives you two functions:
+              a reader and a writer.
+            </p>
+            <div class="code-block">
+              <pre><code>const [count, setCount] = createSignal(0);
+
+count();                // read the current value
+setCount(5);            // write a new value
+setCount((v) =&gt; v + 1); // functional update</code></pre>
+            </div>
+            <h3>What happens when you read a signal?</h3>
+            <p>
+              If the read happens inside an active effect or memo, the signal records that computation
+              as a subscriber. In the source, this happens through <span class="inline-code">trackDependency()</span>.
+            </p>
+            <h3>What happens when you write to a signal?</h3>
+            <p>
+              The signal compares the old value and the new value with
+              <span class="inline-code">Object.is()</span>. If the value really changed, it notifies its subscribers.
+              The important detail is that it does not run those subscribers immediately. It schedules them.
+            </p>
+            <h3>Effects and memos</h3>
+            <ul>
+              <li><strong><span class="inline-code">createEffect()</span>:</strong> runs a function, tracks its signal reads, and runs it again when one of those reads changes.</li>
+              <li><strong><span class="inline-code">createMemo()</span>:</strong> computes a derived value, caches it, and only recomputes when one of its dependencies changes.</li>
+            </ul>
+            <div class="callout">
+              <strong>Beginner mental model</strong>
+              <p>
+                Think of a signal as a box that knows who opened it. When the value inside the box changes,
+                it tells only those readers that they need to update.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" id="scheduler">
+            <h2>3. Scheduler</h2>
+            <p>
+              The scheduler is responsible for batching reactive work. In this codebase, it uses
+              <span class="inline-code">queueMicrotask()</span>, not <span class="inline-code">setTimeout()</span>.
+            </p>
+            <h3>Why the scheduler exists</h3>
+            <p>
+              Without a scheduler, every signal write would try to run effects immediately. That leads to
+              repeated work and unpredictable timing. ShadowJS instead collects dirty computations in
+              <span class="inline-code">pendingEffects</span> and flushes them after the current synchronous work is done.
+            </p>
+            <h3>What the current implementation does</h3>
+            <ol>
+              <li>When a subscriber needs to run, <span class="inline-code">scheduleEffect()</span> marks it dirty and adds it to a set.</li>
+              <li>If no flush is already queued, the scheduler queues one microtask.</li>
+              <li>During the flush, memos run before normal effects so derived values stay current.</li>
+              <li>If more work appears during the flush, another microtask is queued at the end.</li>
+            </ol>
+            <div class="callout">
+              <strong>Practical result</strong>
+              <p>
+                Multiple writes in the same synchronous block can collapse into one effect run, which keeps updates smaller and more predictable.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" id="jsx-runtime">
+            <h2>4. JSX Runtime</h2>
+            <p>
+              ShadowJS does not use React. Its JSX factory is the function
+              <span class="inline-code">h(tag, props, ...children)</span>. That function does not touch the DOM.
+              It only creates a plain descriptor object.
+            </p>
+            <div class="code-block">
+              <pre><code>h("div", { className: "card" }, "Hello");
+
+// becomes a plain object like:
+// { tag: "div", props: { className: "card" }, children: ["Hello"] }</code></pre>
+            </div>
+            <h3>From descriptor to real DOM</h3>
+            <p>
+              The runtime function <span class="inline-code">createDOMNode()</span> walks the descriptor tree and builds actual DOM nodes.
+              It handles string tags, function components, arrays of children, and fragments.
+            </p>
+            <h3>Fine-grained DOM updates</h3>
+            <p>
+              The most important beginner concept here is this: when a child or prop is a function,
+              the runtime wraps it in an effect and binds that effect to one specific DOM target.
+            </p>
+            <ul>
+              <li>A function child like <span class="inline-code">{name}</span> becomes a targeted text binding.</li>
+              <li>A function prop like <span class="inline-code">title: () =&gt; store.label</span> becomes a targeted attribute or property binding.</li>
+              <li>If the current binding is a single text node, the runtime updates that text node directly instead of recreating the parent element.</li>
+            </ul>
+            <div class="code-block">
+              <pre><code>const [name, setName] = createSignal("Sarthak");
+
+mount(
+  () =&gt; &lt;div&gt;Hello &lt;span&gt;{name}&lt;/span&gt;&lt;/div&gt;,
+  document.body
+);
+
+setName("Commander");</code></pre>
+            </div>
+            <div class="callout">
+              <strong>Why this matters</strong>
+              <p>
+                In the example above, the runtime only needs to update the text inside the
+                <span class="inline-code">&lt;span&gt;</span>. It does not need to rebuild the whole
+                <span class="inline-code">&lt;div&gt;</span>.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" id="state-layer">
+            <h2>5. State Layer</h2>
+            <p>
+              The state package adds three helpers on top of signals. The goal is to keep local state and async state
+              inside one reactive model instead of introducing a completely separate system.
+            </p>
+            <h3><span class="inline-code">createQuery()</span></h3>
+            <p>
+              <span class="inline-code">createQuery(asyncFn, key?)</span> starts in a loading state and then runs the async function.
+              Its signal value always has the shape:
+              <span class="inline-code">{ data, error, loading }</span>.
+            </p>
+            <p>
+              Queries are also registered under a string key so they can be invalidated later.
+            </p>
+            <h3><span class="inline-code">createMutation()</span></h3>
+            <p>
+              <span class="inline-code">createMutation(asyncFn, { invalidates })</span> runs an async action and then refetches
+              any queries registered under the given keys.
+            </p>
+            <h3><span class="inline-code">createStore()</span></h3>
+            <p>
+              <span class="inline-code">createStore(initialState)</span> wraps a plain object in a Proxy.
+              Each property gets its own signal entry when it is first accessed or written.
+            </p>
+            <div class="code-block">
+              <pre><code>const posts = createQuery(getPosts, "posts");
+
+const addPost = createMutation(createPost, {
+  invalidates: ["posts"]
+});
+
+const store = createStore({
+  count: 0,
+  open: false
+});</code></pre>
+            </div>
+            <div class="callout">
+              <strong>Simple way to think about it</strong>
+              <p>
+                Queries handle server reads, mutations handle server writes, and stores handle local object state.
+                All three still rely on the same signal mechanics underneath.
+              </p>
+            </div>
+          </section>
+
+          <section class="section" id="compiler-rpc">
+            <h2>6. Compiler / RPC</h2>
+            <p>
+              The compiler package solves one very specific problem: a client file can import a function from a
+              <span class="inline-code">.server.ts</span> file, and the framework turns that import into a client-side RPC stub.
+            </p>
+            <h3>What the analyzer does</h3>
+            <p>
+              The analyzer parses the source with Babel, looks for import declarations whose source matches
+              <span class="inline-code">*.server</span>, and records the imported name, local name, and file path.
+            </p>
+            <h3>What the transform does</h3>
+            <p>
+              The transform removes the original server import and replaces it with generated code that calls
+              <span class="inline-code">fetch("/__rpc/...")</span>.
+            </p>
+            <div class="code-block">
+              <pre><code>export const getPosts = async (...args) =&gt; {
+  const response = await fetch("/__rpc/posts/getPosts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(args)
+  });
+
+  return await response.json();
+};</code></pre>
+            </div>
+            <h3>What the Vite plugin does in development</h3>
+            <ul>
+              <li>Skips transforming server files themselves.</li>
+              <li>Registers a route for each detected server import.</li>
+              <li>Installs a middleware for <span class="inline-code">/__rpc/*</span> requests.</li>
+              <li>Loads the real server module with <span class="inline-code">ssrLoadModule()</span> and calls the matching export.</li>
+            </ul>
+            <div class="callout">
+              <strong>Beginner takeaway</strong>
+              <p>
+                You write <span class="inline-code">import { getPosts } from "./posts.server"</span> in client code,
+                but the browser does not receive the real server function. It receives a generated fetch wrapper instead.
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <footer>
+          This page is a static file and can be opened directly in a browser from
+          <span class="inline-code">apps/docs/index.html</span>.
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
