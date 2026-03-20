@@ -1,12 +1,12 @@
-# ShadowJS
+# MurkJS
 
-ShadowJS is a TypeScript-first experiment in fine-grained UI reactivity, compiler-owned server/client boundaries, and shared state primitives. It combines a signal core, a DOM runtime, a small state layer, and a Vite compiler plugin that rewrites `.server` imports into RPC stubs. It is not a React replacement, not production-ready, and not feature-complete; it is a proof-of-concept codebase for exploring the model.
+MurkJS is a TypeScript-first experiment in fine-grained UI reactivity, compiler-owned server/client boundaries, and shared state primitives. It combines a signal core, a DOM runtime, a small state layer, and a Vite compiler plugin that rewrites `.server` imports into RPC stubs. It is not a React replacement, not production-ready, and not feature-complete; it is a proof-of-concept codebase for exploring the model.
 
 ## Architecture
 
 ```text
 +---------------------------------------------+
-|              @shadowjs/core                 |
+|               @murkjs/core                  |
 |  createSignal · createEffect · createMemo   |
 |          Scheduler (microtask)              |
 +----------------------+----------------------+
@@ -14,7 +14,7 @@ ShadowJS is a TypeScript-first experiment in fine-grained UI reactivity, compile
         +--------------+--------------+
         |              |              |
 +-------v------+ +-----v------+ +-----v-------+
-| @shadowjs/   | | @shadowjs/ | | @shadowjs/  |
+| @murkjs/     | | @murkjs/   | | @murkjs/    |
 |   runtime    | |   state    | |  compiler   |
 | JSX · DOM    | | query ·    | | Vite plugin |
 | mount()      | | mutation · | | RPC stubs   |
@@ -25,8 +25,8 @@ ShadowJS is a TypeScript-first experiment in fine-grained UI reactivity, compile
 ## Quickstart
 
 ```bash
-git clone https://github.com/sarthakdev143-lite/shadowjs
-cd shadowjs
+git clone https://github.com/sarthakdev143-lite/murkjs
+cd murkjs
 pnpm install
 pnpm dev
 # open http://localhost:5173
@@ -37,7 +37,7 @@ pnpm dev
 ### Signals
 
 ```ts
-import { createEffect, createSignal } from "@shadowjs/core";
+import { createEffect, createSignal } from "@murkjs/core";
 
 const [count, setCount] = createSignal(0);
 
@@ -51,10 +51,10 @@ setCount((value) => value + 1);
 ### DOM binding
 
 ```ts
-import { mount, h } from "@shadowjs/runtime";
-import { createSignal } from "@shadowjs/core";
+import { mount, h } from "@murkjs/runtime";
+import { createSignal } from "@murkjs/core";
 
-const [name, setName] = createSignal("ShadowJS");
+const [name, setName] = createSignal("MurkJS");
 
 mount(
   () =>
@@ -69,7 +69,7 @@ mount(
 ### createQuery
 
 ```ts
-import { createQuery } from "@shadowjs/state";
+import { createQuery } from "@murkjs/state";
 import { getPosts } from "./posts.server";
 
 const posts = createQuery(getPosts, "posts");
@@ -82,21 +82,21 @@ console.log(posts().error);
 ### createStore
 
 ```ts
-import { createStore } from "@shadowjs/state";
+import { createStore } from "@murkjs/state";
 
 const form = createStore({
   draft: "",
   open: false
 });
 
-form.draft = "ShadowJS";
+form.draft = "MurkJS";
 form.open = true;
 ```
 
 ### .server imports
 
 ```ts
-import { createMutation } from "@shadowjs/state";
+import { createMutation } from "@murkjs/state";
 import { addPost } from "./posts.server";
 
 const { mutate, pending, error } = createMutation(addPost, {

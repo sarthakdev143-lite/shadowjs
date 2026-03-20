@@ -2,20 +2,20 @@ import { parse } from "@babel/parser";
 import { describe, expect, it } from "vitest";
 
 import { generateProductionServer } from "../src/index";
-import { shadowjs } from "../src/plugin";
+import { murkjs } from "../src/plugin";
 import { generateRPCStub } from "../src/rpc-gen";
 import { transformServerImports } from "../src/transform";
 
-describe("@shadowjs/compiler", () => {
+describe("@murkjs/compiler", () => {
   it("passes through files without .server imports", () => {
-    const source = 'import { createSignal } from "@shadowjs/core";\n\nconst count = createSignal(0);';
+    const source = 'import { createSignal } from "@murkjs/core";\n\nconst count = createSignal(0);';
 
     expect(transformServerImports(source)).toBeNull();
   });
 
   it("replaces .server imports with fetch stubs", () => {
     const source = [
-      'import { createQuery } from "@shadowjs/state";',
+      'import { createQuery } from "@murkjs/state";',
       'import { getPosts } from "./posts.server";',
       "",
       "const posts = createQuery(getPosts);"
@@ -26,7 +26,7 @@ describe("@shadowjs/compiler", () => {
     expect(transformed?.code).not.toContain('from "./posts.server"');
     expect(transformed?.code).toContain('fetch("/__rpc/posts/getPosts"');
     expect(transformed?.code).toContain("export const getPosts");
-    expect(transformed?.code).toContain('import { createQuery } from "@shadowjs/state";');
+    expect(transformed?.code).toContain('import { createQuery } from "@murkjs/state";');
   });
 
   it("returns a valid source map for transformed files", () => {
@@ -58,7 +58,7 @@ describe("@shadowjs/compiler", () => {
   });
 
   it("skips transforming server-only files", () => {
-    const plugin = shadowjs();
+    const plugin = murkjs();
     const transformHook =
       typeof plugin.transform === "function"
         ? (plugin.transform as unknown as (code: string, id: string) => unknown)

@@ -32,10 +32,10 @@ importers:
 
   apps/benchmark:
     dependencies:
-      '@shadowjs/core':
+      '@murkjs/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@shadowjs/runtime':
+      '@murkjs/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
     devDependencies:
@@ -48,16 +48,16 @@ importers:
 
   apps/demo:
     dependencies:
-      '@shadowjs/compiler':
+      '@murkjs/compiler':
         specifier: workspace:*
         version: link:../../packages/compiler
-      '@shadowjs/core':
+      '@murkjs/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@shadowjs/runtime':
+      '@murkjs/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
-      '@shadowjs/state':
+      '@murkjs/state':
         specifier: workspace:*
         version: link:../../packages/state
     devDependencies:
@@ -87,13 +87,13 @@ importers:
 
   packages/runtime:
     dependencies:
-      '@shadowjs/core':
+      '@murkjs/core':
         specifier: workspace:*
         version: link:../core
 
   packages/state:
     dependencies:
-      '@shadowjs/core':
+      '@murkjs/core':
         specifier: workspace:*
         version: link:../core
 

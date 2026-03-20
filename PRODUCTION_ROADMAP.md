@@ -1,4 +1,4 @@
-# ShadowJS — Production Readiness Roadmap
+# MurkJS — Production Readiness Roadmap
 
 Read this file completely before writing a single line of code.
 Work through phases in strict order. Do not start Phase N+1 before Phase N tests pass.
@@ -200,7 +200,7 @@ Export `batch` from `packages/core/src/index.ts`.
 **`packages/state/src/mutation.ts`**
 
 ```typescript
-import { createSignal, type Accessor } from "@shadowjs/core"
+import { createSignal, type Accessor } from "@murkjs/core"
 import { invalidateQueryKeys } from "./query"
 
 export interface MutationOptions {
@@ -331,7 +331,7 @@ The compiler removes import lines and inserts RPC stubs. The resulting file has 
 Add `magic-string` to `packages/compiler`:
 
 ```bash
-pnpm --filter @shadowjs/compiler add magic-string
+pnpm --filter @murkjs/compiler add magic-string
 ```
 
 **`packages/compiler/src/transform.ts`**
@@ -431,7 +431,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method !== "POST") {
-    writeJson(res, 405, { error: "ShadowJS RPC only supports POST." })
+    writeJson(res, 405, { error: "MurkJS RPC only supports POST." })
     return
   }
 
@@ -467,7 +467,7 @@ const server = createServer(async (req, res) => {
 
 const port = process.env.PORT ?? 3000
 server.listen(port, () => {
-  console.log("ShadowJS RPC server listening on port " + port)
+  console.log("MurkJS RPC server listening on port " + port)
 })
 `.trim()
 }
@@ -481,7 +481,7 @@ Add `closeBundle` hook to write the production server:
 import { writeFileSync, mkdirSync } from "node:fs"
 import { generateProductionServer } from "./server-build"
 
-// Inside shadowjs():
+// Inside murkjs():
 closeBundle() {
   if (routeRegistry.size === 0) return
   const outDir = resolve(process.cwd(), "dist")
@@ -523,7 +523,7 @@ Add configurable error handler:
 export type EffectErrorHandler = (error: unknown, computation: Computation) => void
 
 let effectErrorHandler: EffectErrorHandler = (error) => {
-  console.error("[ShadowJS] Uncaught effect error:", error)
+  console.error("[MurkJS] Uncaught effect error:", error)
 }
 
 export function setEffectErrorHandler(handler: EffectErrorHandler): void {
@@ -546,8 +546,8 @@ Export `setEffectErrorHandler` and `EffectErrorHandler` from `packages/core/src/
 **New file: `packages/runtime/src/error-boundary.ts`**
 
 ```typescript
-import { createSignal } from "@shadowjs/core"
-import { setEffectErrorHandler } from "@shadowjs/core"
+import { createSignal } from "@murkjs/core"
+import { setEffectErrorHandler } from "@murkjs/core"
 import type { Renderable, Props } from "./jsx"
 import { h } from "./jsx"
 
@@ -674,13 +674,13 @@ jobs:
 Replace `README.md` entirely. Write the following sections:
 
 **1. Title and one-paragraph description**
-What ShadowJS is. What problem it solves (fine-grained reactivity, compiler-owned server/client boundary, unified state). What it is NOT (a React replacement, production-ready, feature-complete).
+What MurkJS is. What problem it solves (fine-grained reactivity, compiler-owned server/client boundary, unified state). What it is NOT (a React replacement, production-ready, feature-complete).
 
 **2. Architecture**
 
 ```
 ┌─────────────────────────────────────────────┐
-│                 @shadowjs/core              │
+│                  @murkjs/core               │
 │  createSignal · createEffect · createMemo   │
 │              Scheduler (microtask)          │
 └────────────────────┬────────────────────────┘
@@ -688,7 +688,7 @@ What ShadowJS is. What problem it solves (fine-grained reactivity, compiler-owne
       ┌──────────────┼──────────────┐
       │              │              │
 ┌─────▼──────┐ ┌─────▼──────┐ ┌────▼───────┐
-│ @shadowjs/ │ │ @shadowjs/ │ │ @shadowjs/ │
+│ @murkjs/   │ │ @murkjs/   │ │ @murkjs/   │
 │  runtime   │ │   state    │ │  compiler  │
 │ JSX · DOM  │ │ query ·    │ │ Vite plugin│
 │  mount()   │ │ mutation · │ │ RPC stubs  │
@@ -699,8 +699,8 @@ What ShadowJS is. What problem it solves (fine-grained reactivity, compiler-owne
 **3. Quickstart**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/shadowjs
-cd shadowjs
+git clone https://github.com/YOUR_USERNAME/murkjs
+cd murkjs
 pnpm install
 pnpm dev
 # open http://localhost:5173
@@ -737,7 +737,7 @@ pnpm dev         # run demo app
 import { describe, it, expect, beforeAll, afterAll } from "vitest"
 import { createServer, type ViteDevServer } from "vite"
 import { fileURLToPath } from "node:url"
-import { shadowjs } from "../src/plugin"
+import { murkjs } from "../src/plugin"
 
 describe("RPC integration", () => {
   let server: ViteDevServer
@@ -745,7 +745,7 @@ describe("RPC integration", () => {
 
   beforeAll(async () => {
     server = await createServer({
-      plugins: [shadowjs()],
+      plugins: [murkjs()],
       root: fileURLToPath(new URL("../../../apps/demo", import.meta.url)),
       server: { port: 0, strictPort: false }
     })

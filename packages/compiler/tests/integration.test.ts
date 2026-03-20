@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createServer, type ViteDevServer } from "vite";
 import { fileURLToPath } from "node:url";
 
-import { shadowjs } from "../src/plugin";
+import { murkjs } from "../src/plugin";
 
 describe("RPC integration", () => {
   let port: number;
@@ -12,12 +12,12 @@ describe("RPC integration", () => {
     const workspaceRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
     server = await createServer({
-      plugins: [shadowjs()],
+      plugins: [murkjs()],
       resolve: {
         alias: {
-          "@shadowjs/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
-          "@shadowjs/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
-          "@shadowjs/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))
+          "@murkjs/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
+          "@murkjs/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
+          "@murkjs/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))
         }
       },
       root: fileURLToPath(new URL("../../../apps/demo", import.meta.url)),

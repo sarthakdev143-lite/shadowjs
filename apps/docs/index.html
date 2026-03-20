@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ShadowJS Documentation</title>
+    <title>MurkJS Documentation</title>
     <style>
       :root {
         --bg: #09080b;
@@ -294,13 +294,13 @@
   <body>
     <div class="layout">
       <aside class="sidebar">
-        <h1>ShadowJS Documentation</h1>
+        <h1>MurkJS Documentation</h1>
         <p>
           Beginner-friendly notes for the current implementation in this repository.
           This is a documentation page, not a marketing landing page.
         </p>
         <nav aria-label="Section navigation">
-          <a href="#what-is-shadowjs">1. What is ShadowJS</a>
+          <a href="#what-is-murkjs">1. What is MurkJS</a>
           <a href="#signals">2. Signals</a>
           <a href="#scheduler">3. Scheduler</a>
           <a href="#jsx-runtime">4. JSX Runtime</a>
@@ -316,9 +316,9 @@
 
       <main class="content">
         <header class="page-header">
-          <h2>ShadowJS, explained from the beginning</h2>
+          <h2>MurkJS, explained from the beginning</h2>
           <p>
-            ShadowJS is a TypeScript-first JavaScript framework in this repository. Its main idea is simple:
+            MurkJS is a TypeScript-first JavaScript framework in this repository. Its main idea is simple:
             when some data changes, only the code that depends on that exact piece of data should update.
             The framework does that with signals, a microtask scheduler, a small JSX-to-DOM runtime,
             a signal-based state layer, and a compiler plugin that turns server imports into RPC calls.
@@ -340,15 +340,15 @@
         </header>
 
         <div class="sections">
-          <section class="section" id="what-is-shadowjs">
-            <h2>1. What is ShadowJS</h2>
+          <section class="section" id="what-is-murkjs">
+            <h2>1. What is MurkJS</h2>
             <p>
-              According to the current README, ShadowJS is a framework with four main parts:
+              According to the current README, MurkJS is a framework with four main parts:
               fine-grained signals, a DOM runtime, state primitives, and a Vite compiler plugin
               for <span class="inline-code">.server.ts</span> imports.
             </p>
             <p>
-              In practical terms, ShadowJS tries to make UI updates more direct. Instead of re-running
+              In practical terms, MurkJS tries to make UI updates more direct. Instead of re-running
               a whole component tree and diffing the result, it tracks exactly which computation read which value.
               Then it updates only the affected computation or DOM binding.
             </p>
@@ -421,7 +421,7 @@ setCount((v) =&gt; v + 1); // functional update</code></pre>
             <h3>Why the scheduler exists</h3>
             <p>
               Without a scheduler, every signal write would try to run effects immediately. That leads to
-              repeated work and unpredictable timing. ShadowJS instead collects dirty computations in
+              repeated work and unpredictable timing. MurkJS instead collects dirty computations in
               <span class="inline-code">pendingEffects</span> and flushes them after the current synchronous work is done.
             </p>
             <h3>What the current implementation does</h3>
@@ -442,7 +442,7 @@ setCount((v) =&gt; v + 1); // functional update</code></pre>
           <section class="section" id="jsx-runtime">
             <h2>4. JSX Runtime</h2>
             <p>
-              ShadowJS does not use React. Its JSX factory is the function
+              MurkJS does not use React. Its JSX factory is the function
               <span class="inline-code">h(tag, props, ...children)</span>. That function does not touch the DOM.
               It only creates a plain descriptor object.
             </p>

@@ -27,7 +27,7 @@ function getTransformMetadata(source: string): { insertionIndex: number; ranges:
       if (isServerImportPath(path.node.source.value)) {
         for (const specifier of path.node.specifiers) {
           if (isImportNamespaceSpecifier(specifier)) {
-            throw new Error("ShadowJS v1 does not support namespace imports from .server files.");
+            throw new Error("MurkJS v1 does not support namespace imports from .server files.");
           }
         }
 

@@ -1,4 +1,4 @@
-# ShadowJS — Git & CI/CD Standards
+# MurkJS — Git & CI/CD Standards
 
 This file is an addendum to PRODUCTION_ROADMAP.md.
 Apply everything here before starting Phase 1. This is not optional.
@@ -231,7 +231,7 @@ Settings to apply in GitHub repo settings:
 
 ## Semantic Versioning
 
-ShadowJS follows semver: `MAJOR.MINOR.PATCH`
+MurkJS follows semver: `MAJOR.MINOR.PATCH`
 
 - `PATCH` (0.0.x) — bug fixes, no API changes
 - `MINOR` (0.x.0) — new features, backwards compatible
@@ -331,9 +331,9 @@ about: Something is broken
 ---
 
 **Package**
-<!-- e.g. @shadowjs/core -->
+<!-- e.g. @murkjs/core -->
 
-**ShadowJS version**
+**MurkJS version**
 
 **Description**
 <!-- What happened vs what you expected -->

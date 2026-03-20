@@ -75,14 +75,14 @@ function installRpcMiddleware(server: ViteDevServer, routeRegistry: Map<string, 
     }
 
     if (request.method !== "POST") {
-      writeJson(response, 405, { error: "ShadowJS RPC only supports POST requests." });
+      writeJson(response, 405, { error: "MurkJS RPC only supports POST requests." });
       return;
     }
 
     const segments = url.slice("/__rpc/".length).split("/").filter((segment) => segment.length > 0);
 
     if (segments.length < 2) {
-      writeJson(response, 400, { error: "Invalid ShadowJS RPC path." });
+      writeJson(response, 400, { error: "Invalid MurkJS RPC path." });
       return;
     }
 
@@ -91,7 +91,7 @@ function installRpcMiddleware(server: ViteDevServer, routeRegistry: Map<string, 
     const serverModule = routeRegistry.get(routePath);
 
     if (serverModule === undefined) {
-      writeJson(response, 404, { error: `No ShadowJS RPC module registered for "${routePath}".` });
+      writeJson(response, 404, { error: `No MurkJS RPC module registered for "${routePath}".` });
       return;
     }
 
@@ -100,7 +100,7 @@ function installRpcMiddleware(server: ViteDevServer, routeRegistry: Map<string, 
       const handler = loadedModule[functionName];
 
       if (typeof handler !== "function") {
-        writeJson(response, 404, { error: `No ShadowJS RPC handler named "${functionName}".` });
+        writeJson(response, 404, { error: `No MurkJS RPC handler named "${functionName}".` });
         return;
       }
 
@@ -115,7 +115,7 @@ function installRpcMiddleware(server: ViteDevServer, routeRegistry: Map<string, 
   });
 }
 
-export function shadowjs(): Plugin {
+export function murkjs(): Plugin {
   const routeRegistry = new Map<string, string>();
 
   return {
@@ -132,7 +132,7 @@ export function shadowjs(): Plugin {
       installRpcMiddleware(server, routeRegistry);
     },
     enforce: "pre",
-    name: "shadowjs",
+    name: "murkjs",
     transform(code, id) {
       const cleanId = stripQuery(id);
 

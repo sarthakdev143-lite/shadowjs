@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createSignal, onMount } from "@shadowjs/core";
+import { createSignal, onMount } from "@murkjs/core";
 
 import { ErrorBoundary, createDOMNode, h, mount } from "../src/index";
 
@@ -12,7 +12,7 @@ function waitForMicrotask(): Promise<void> {
   });
 }
 
-describe("@shadowjs/runtime", () => {
+describe("@murkjs/runtime", () => {
   it("creates static DOM nodes from descriptors", () => {
     const node = createDOMNode(h("div", { id: "app" }, "Hello ", h("span", null, "world")));
 
