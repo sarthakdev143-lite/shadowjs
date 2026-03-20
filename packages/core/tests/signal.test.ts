@@ -5,7 +5,10 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  flushMountCallbacks,
   flushEffects,
+  onCleanup,
+  onMount,
   pendingEffects,
   pushErrorHandler,
   setEffectErrorHandler
@@ -19,6 +22,7 @@ function waitForMicrotask(): Promise<void> {
 
 afterEach(() => {
   flushEffects();
+  flushMountCallbacks();
   setEffectErrorHandler((error) => {
     console.error("[ShadowJS] Uncaught effect error:", error);
   });
@@ -441,5 +445,31 @@ describe("@shadowjs/core", () => {
     expect(scopedHandler).not.toHaveBeenCalled();
     expect(globalHandler).toHaveBeenCalledTimes(1);
     expect((globalHandler.mock.calls[0]?.[0] as Error).message).toBe("global");
+  });
+
+  it("runs onCleanup when the containing effect is disposed", () => {
+    const cleanup = vi.fn();
+    const dispose = createEffect(() => {
+      onCleanup(cleanup);
+    });
+
+    dispose();
+
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+
+  it("runs multiple onMount callbacks in registration order", () => {
+    const calls: string[] = [];
+
+    onMount(() => {
+      calls.push("first");
+    });
+    onMount(() => {
+      calls.push("second");
+    });
+
+    flushMountCallbacks();
+
+    expect(calls).toEqual(["first", "second"]);
   });
 });
