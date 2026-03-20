@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Package publishing metadata and CommonJS exports
 - GitHub Actions CI workflow for `main` and pull requests
 - Expanded README with architecture, quickstart, concepts, and limitations
+- Vite RPC integration test coverage
 
 ### Fixed
 - Effect memory leak; effects now disposable
