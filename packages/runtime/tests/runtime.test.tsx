@@ -59,4 +59,48 @@ describe("@shadowjs/runtime", () => {
     expect(container.querySelector("button")).toBe(button);
     expect(button?.getAttribute("title")).toBe("done");
   });
+
+  it("disposes effects from the previous tree when mount is called again", async () => {
+    const [title, setTitle] = createSignal("first");
+    const container = document.createElement("div");
+
+    mount(() => h("button", { title }, "Save"), container);
+    const previousButton = container.querySelector("button");
+
+    mount(() => h("p", null, "Replaced"), container);
+    setTitle("second");
+    await waitForMicrotask();
+
+    expect(container.querySelector("button")).toBeNull();
+    expect(previousButton?.getAttribute("title")).toBe("first");
+    expect(container.textContent).toBe("Replaced");
+  });
+
+  it("stops updating a replaced reactive text node after disposal", async () => {
+    const [message, setMessage] = createSignal("Hello");
+    const [visible, setVisible] = createSignal(true);
+    const container = document.createElement("div");
+
+    mount(
+      () =>
+        h(
+          "div",
+          null,
+          () => (visible() ? h("span", null, message) : h("strong", null, "Hidden"))
+        ),
+      container
+    );
+
+    const previousSpan = container.querySelector("span");
+
+    setVisible(false);
+    await waitForMicrotask();
+
+    setMessage("Updated");
+    await waitForMicrotask();
+
+    expect(container.querySelector("span")).toBeNull();
+    expect(container.querySelector("strong")?.textContent).toBe("Hidden");
+    expect(previousSpan?.textContent).toBe("Hello");
+  });
 });

@@ -3,6 +3,7 @@ import { createEffect } from "@shadowjs/core";
 import { Fragment, type JSXDescriptor, type Primitive, type Props, type ReactiveChild, type Renderable } from "./jsx";
 
 type DOMPropertyTarget = Element & Record<string, unknown>;
+const nodeDisposers = new WeakMap<Node, Array<() => void>>();
 
 function isDescriptor(value: unknown): value is JSXDescriptor {
   if (typeof value !== "object" || value === null) {
@@ -38,6 +39,12 @@ function insertNodes(parent: Node, anchor: Node | null, nodes: Node[]): void {
   for (const node of nodes) {
     parent.insertBefore(node, anchor);
   }
+}
+
+function registerDisposer(node: Node, dispose: () => void): void {
+  const disposers = nodeDisposers.get(node) ?? [];
+  disposers.push(dispose);
+  nodeDisposers.set(node, disposers);
 }
 
 function createTextNode(value: Primitive): Text {
@@ -101,9 +108,10 @@ function applyProps(element: Element, props: Props): void {
     if (typeof value === "function") {
       const accessor = value as ReactiveChild;
 
-      createEffect(() => {
+      const dispose = createEffect(() => {
         setElementProperty(element, key, accessor());
       });
+      registerDisposer(element, dispose);
 
       continue;
     }
@@ -126,6 +134,7 @@ function updateReactiveNodes(anchor: Comment, currentNodes: Node[], value: Rende
   }
 
   for (const node of currentNodes) {
+    disposeNode(node);
     parent.removeChild(node);
   }
 
@@ -138,7 +147,7 @@ function createReactiveNodes(accessor: ReactiveChild): Node[] {
   let currentNodes = createDOMNodes(accessor());
   let isFirstRun = true;
 
-  createEffect(() => {
+  const dispose = createEffect(() => {
     const value = accessor();
 
     if (isFirstRun) {
@@ -148,6 +157,7 @@ function createReactiveNodes(accessor: ReactiveChild): Node[] {
 
     currentNodes = updateReactiveNodes(anchor, currentNodes, value);
   });
+  registerDisposer(anchor, dispose);
 
   return [...currentNodes, anchor];
 }
@@ -214,4 +224,20 @@ export function createDOMNode(value: Renderable): Node {
   const fragment = document.createDocumentFragment();
   insertNodes(fragment, null, nodes);
   return fragment;
+}
+
+export function disposeNode(node: Node): void {
+  const disposers = nodeDisposers.get(node);
+
+  if (disposers !== undefined) {
+    for (const dispose of disposers) {
+      dispose();
+    }
+
+    nodeDisposers.delete(node);
+  }
+
+  for (const child of Array.from(node.childNodes)) {
+    disposeNode(child);
+  }
 }
