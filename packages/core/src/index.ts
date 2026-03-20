@@ -1,4 +1,5 @@
 export { currentObserver, onCleanup, pushErrorHandler, runWithObserver } from "./context";
+export { flushMountCallbacks, onMount, withCleanupScope } from "./lifecycle";
 export { batch, flushEffects, isFlushing, pendingEffects, scheduleEffect, setEffectErrorHandler } from "./scheduler";
 export { createEffect, createMemo, createSignal } from "./signal";
 export type { EffectErrorHandler } from "./scheduler";

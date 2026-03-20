@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createSignal } from "@shadowjs/core";
+import { createSignal, onMount } from "@shadowjs/core";
 
 import { ErrorBoundary, createDOMNode, h, mount } from "../src/index";
 
@@ -307,5 +307,47 @@ describe("@shadowjs/runtime", () => {
 
     expect(container.querySelector("#first-fallback")?.textContent).toBe("first boundary");
     expect(container.querySelector("#second-fallback")?.textContent).toBe("second boundary");
+  });
+
+  it("runs onMount after mount() commits DOM nodes", () => {
+    const container = document.createElement("div");
+    let observedText = "";
+
+    function MountedLabel() {
+      onMount(() => {
+        observedText = container.querySelector("span")?.textContent ?? "";
+      });
+
+      return h("span", null, "Mounted");
+    }
+
+    mount(() => h(MountedLabel, null), container);
+
+    expect(container.querySelector("span")?.textContent).toBe("Mounted");
+    expect(observedText).toBe("Mounted");
+  });
+
+  it("runs onMount cleanup when the mounted tree is replaced", () => {
+    const container = document.createElement("div");
+    const cleanup = document.createElement("span");
+    let cleanupCalls = 0;
+
+    function MountedLabel() {
+      onMount(() => {
+        return () => {
+          cleanupCalls += 1;
+          cleanup.textContent = "cleaned";
+        };
+      });
+
+      return h("span", null, "Mounted");
+    }
+
+    mount(() => h(MountedLabel, null), container);
+    mount(() => h("strong", null, "Replaced"), container);
+
+    expect(cleanupCalls).toBe(1);
+    expect(cleanup.textContent).toBe("cleaned");
+    expect(container.querySelector("strong")?.textContent).toBe("Replaced");
   });
 });
