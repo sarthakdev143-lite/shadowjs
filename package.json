@@ -1,7 +1,7 @@
 {
   "name": "shadowjs",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "bench": "corepack pnpm --filter @shadowjs/benchmark bench",
     "build": "corepack pnpm -r --if-present build",
