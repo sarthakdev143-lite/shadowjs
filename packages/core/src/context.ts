@@ -2,6 +2,8 @@ import type { Computation } from "./signal";
 
 export let currentObserver: Computation | null = null;
 type ErrorHandler = (error: unknown, computation: Computation) => void;
+type CleanupScope = Array<() => void>;
+const cleanupStack: CleanupScope[] = [];
 const errorHandlerStack: ErrorHandler[] = [];
 
 export function runWithObserver<T>(observer: Computation, fn: () => T): T {
@@ -42,5 +44,34 @@ export function runWithErrorHandler<T>(handler: ErrorHandler | null, fn: () => T
     return fn();
   } finally {
     popHandler();
+  }
+}
+
+export function pushCleanupScope(): () => void {
+  const scope: CleanupScope = [];
+  cleanupStack.push(scope);
+
+  return function runCleanups(): void {
+    const index = cleanupStack.lastIndexOf(scope);
+
+    if (index !== -1) {
+      cleanupStack.splice(index, 1);
+    }
+
+    for (const cleanup of scope) {
+      cleanup();
+    }
+  };
+}
+
+export function popCleanupScope(): void {
+  cleanupStack.pop();
+}
+
+export function onCleanup(fn: () => void): void {
+  const scope = cleanupStack[cleanupStack.length - 1];
+
+  if (scope !== undefined) {
+    scope.push(fn);
   }
 }

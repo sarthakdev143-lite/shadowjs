@@ -1,4 +1,4 @@
-import { createSignal, type Accessor } from "@shadowjs/core";
+import { createSignal, onCleanup, type Accessor } from "@shadowjs/core";
 
 export interface QueryState<T> {
   data: T | null;
@@ -45,6 +45,20 @@ function registerQuery(key: string, runner: QueryRunner): void {
   queryRegistry.set(key, new Set<QueryRunner>([runner]));
 }
 
+function deregisterQuery(key: string, runner: QueryRunner): void {
+  const runners = queryRegistry.get(key);
+
+  if (runners === undefined) {
+    return;
+  }
+
+  runners.delete(runner);
+
+  if (runners.size === 0) {
+    queryRegistry.delete(key);
+  }
+}
+
 export async function invalidateQueryKeys(keys: string[]): Promise<void> {
   const queuedRunners = new Set<QueryRunner>();
 
@@ -63,6 +77,16 @@ export async function invalidateQueryKeys(keys: string[]): Promise<void> {
   }
 
   await Promise.allSettled(Array.from(queuedRunners, (runner) => runner()));
+}
+
+export function getQueryRegistrySize(): number {
+  return queryRegistry.size;
+}
+
+export function resetQueryRegistryForTests(): void {
+  inFlightRequests.clear();
+  queryRegistry.clear();
+  nextAnonymousQueryId = 0;
 }
 
 export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): Accessor<QueryState<T>> {
@@ -115,7 +139,11 @@ export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): A
     }
   };
 
-  registerQuery(queryKey, () => run({ force: true }));
+  const runner = () => run({ force: true });
+  registerQuery(queryKey, runner);
+  onCleanup(() => {
+    deregisterQuery(queryKey, runner);
+  });
   void run();
 
   return state;

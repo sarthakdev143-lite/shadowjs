@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createEffect } from "@shadowjs/core";
 
 import { createMutation, createQuery, createStore } from "../src/index";
-import { invalidateQueryKeys } from "../src/query";
+import { getQueryRegistrySize, invalidateQueryKeys, resetQueryRegistryForTests } from "../src/query";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -27,6 +27,10 @@ function createDeferred<T>() {
 }
 
 describe("@shadowjs/state", () => {
+  afterEach(() => {
+    resetQueryRegistryForTests();
+  });
+
   it("createQuery starts in a loading state", () => {
     const query = createQuery(async () => "hello", "greeting");
 
@@ -340,5 +344,55 @@ describe("@shadowjs/state", () => {
     await waitForMicrotask();
 
     expect(runs).toBe(2);
+  });
+
+  it("removes query registry entries when their scopes are disposed", () => {
+    const dispose = createEffect(() => {
+      void createQuery(async () => "scoped", "scoped-query");
+    });
+
+    expect(getQueryRegistrySize()).toBe(1);
+
+    dispose();
+
+    expect(getQueryRegistrySize()).toBe(0);
+  });
+
+  it("does not refetch invalidated keys after the query scope is disposed", async () => {
+    const getPosts = vi.fn(async () => "shadowjs");
+    const dispose = createEffect(() => {
+      void createQuery(getPosts, "disposed-query");
+    });
+
+    await waitForMicrotask();
+    expect(getPosts).toHaveBeenCalledTimes(1);
+
+    dispose();
+    await invalidateQueryKeys(["disposed-query"]);
+
+    expect(getPosts).toHaveBeenCalledTimes(1);
+    expect(getQueryRegistrySize()).toBe(0);
+  });
+
+  it("keeps other queries with the same key registered after one scope is disposed", async () => {
+    const getPosts = vi.fn(async () => "shared");
+    const disposeFirst = createEffect(() => {
+      void createQuery(getPosts, "shared-query");
+    });
+    const disposeSecond = createEffect(() => {
+      void createQuery(getPosts, "shared-query");
+    });
+
+    await waitForMicrotask();
+    expect(getQueryRegistrySize()).toBe(1);
+    expect(getPosts).toHaveBeenCalledTimes(1);
+
+    disposeFirst();
+    await invalidateQueryKeys(["shared-query"]);
+
+    expect(getPosts).toHaveBeenCalledTimes(2);
+
+    disposeSecond();
+    expect(getQueryRegistrySize()).toBe(0);
   });
 });

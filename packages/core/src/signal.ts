@@ -1,4 +1,11 @@
-import { currentObserver, getActiveErrorHandler, runWithErrorHandler, runWithObserver } from "./context";
+import {
+  currentObserver,
+  getActiveErrorHandler,
+  popCleanupScope,
+  pushCleanupScope,
+  runWithErrorHandler,
+  runWithObserver
+} from "./context";
 import { pendingEffects, reportEffectError, scheduleEffect } from "./scheduler";
 
 export type Accessor<T> = () => T;
@@ -20,6 +27,7 @@ interface MemoState<T> extends DependencySource {
 }
 
 export interface Computation {
+  cleanup: (() => void) | null;
   dependencies: Set<DependencySource>;
   dirty: boolean;
   errorHandler: ((error: unknown, computation: Computation) => void) | null;
@@ -79,6 +87,7 @@ function resolveUpdater<T>(value: Updater<T>, currentValue: T): T {
 
 function createComputation(kind: "effect" | "memo", execute: () => void): Computation {
   return {
+    cleanup: null,
     dependencies: new Set<DependencySource>(),
     dirty: false,
     errorHandler: getActiveErrorHandler(),
@@ -120,11 +129,16 @@ export function createEffect(effect: () => void): () => void {
   const computation = createComputation("effect", () => {
     computation.running = true;
     computation.dirty = false;
+    computation.cleanup?.();
+    computation.cleanup = null;
     cleanupComputation(computation);
+    const runCleanups = pushCleanupScope();
 
     try {
       runWithErrorHandler(computation.errorHandler, () => runWithObserver(computation, effect));
     } finally {
+      popCleanupScope();
+      computation.cleanup = runCleanups;
       computation.running = false;
     }
   });
@@ -136,6 +150,8 @@ export function createEffect(effect: () => void): () => void {
   }
 
   return function dispose(): void {
+    computation.cleanup?.();
+    computation.cleanup = null;
     cleanupComputation(computation);
     computation.dirty = false;
     computation.scheduled = false;
@@ -152,12 +168,17 @@ export function createMemo<T>(memo: () => T): Accessor<T> {
 
     computation.running = true;
     computation.dirty = false;
+    computation.cleanup?.();
+    computation.cleanup = null;
     cleanupComputation(computation);
+    const runCleanups = pushCleanupScope();
 
     try {
       state.value = runWithErrorHandler(computation.errorHandler, () => runWithObserver(computation, memo));
       state.initialized = true;
     } finally {
+      popCleanupScope();
+      computation.cleanup = runCleanups;
       computation.running = false;
     }
 
