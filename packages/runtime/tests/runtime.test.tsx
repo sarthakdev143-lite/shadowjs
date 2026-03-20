@@ -103,4 +103,155 @@ describe("@shadowjs/runtime", () => {
     expect(container.querySelector("strong")?.textContent).toBe("Hidden");
     expect(previousSpan?.textContent).toBe("Hello");
   });
+
+  it("inserts keyed list items without replacing existing nodes", async () => {
+    const [items, setItems] = createSignal([
+      { id: 1, label: "One" },
+      { id: 2, label: "Two" }
+    ]);
+    const container = document.createElement("div");
+
+    mount(
+      () =>
+        h(
+          "ul",
+          null,
+          () => items().map((item) => h("li", { key: item.id }, item.label))
+        ),
+      container
+    );
+
+    const initialItems = Array.from(container.querySelectorAll("li"));
+
+    setItems([
+      { id: 1, label: "One" },
+      { id: 2, label: "Two" },
+      { id: 3, label: "Three" }
+    ]);
+    await waitForMicrotask();
+
+    const nextItems = Array.from(container.querySelectorAll("li"));
+
+    expect(nextItems).toHaveLength(3);
+    expect(nextItems[0]).toBe(initialItems[0]);
+    expect(nextItems[1]).toBe(initialItems[1]);
+    expect(nextItems[2]?.textContent).toBe("Three");
+  });
+
+  it("disposes only the removed keyed item", async () => {
+    const [firstLabel, setFirstLabel] = createSignal("First");
+    const [secondLabel, setSecondLabel] = createSignal("Second");
+    const [ids, setIds] = createSignal([1, 2]);
+    const container = document.createElement("div");
+
+    mount(
+      () =>
+        h(
+          "ul",
+          null,
+          () =>
+            ids().map((id) =>
+              h("li", { key: id }, () => (id === 1 ? firstLabel() : secondLabel()))
+            )
+        ),
+      container
+    );
+
+    const [firstItem, secondItem] = Array.from(container.querySelectorAll("li"));
+
+    setIds([2]);
+    await waitForMicrotask();
+
+    setFirstLabel("Gone");
+    setSecondLabel("Still here");
+    await waitForMicrotask();
+
+    const remainingItems = Array.from(container.querySelectorAll("li"));
+
+    expect(remainingItems).toHaveLength(1);
+    expect(remainingItems[0]).toBe(secondItem);
+    expect(remainingItems[0]?.textContent).toBe("Still here");
+    expect(firstItem?.textContent).toBe("First");
+  });
+
+  it("reorders keyed list items without recreating nodes", async () => {
+    const [items, setItems] = createSignal([
+      { id: 1, label: "One" },
+      { id: 2, label: "Two" },
+      { id: 3, label: "Three" }
+    ]);
+    const container = document.createElement("div");
+
+    mount(
+      () =>
+        h(
+          "ul",
+          null,
+          () => items().map((item) => h("li", { key: item.id }, item.label))
+        ),
+      container
+    );
+
+    const initialItems = Array.from(container.querySelectorAll("li"));
+
+    setItems([
+      { id: 3, label: "Three" },
+      { id: 1, label: "One" },
+      { id: 2, label: "Two" }
+    ]);
+    await waitForMicrotask();
+
+    const reorderedItems = Array.from(container.querySelectorAll("li"));
+
+    expect(reorderedItems.map((item) => item.textContent)).toEqual(["Three", "One", "Two"]);
+    expect(reorderedItems[0]).toBe(initialItems[2]);
+    expect(reorderedItems[1]).toBe(initialItems[0]);
+    expect(reorderedItems[2]).toBe(initialItems[1]);
+  });
+
+  it("does not mutate the DOM when keyed list order is unchanged", async () => {
+    const [items, setItems] = createSignal([
+      { id: 1, label: "One" },
+      { id: 2, label: "Two" }
+    ]);
+    const container = document.createElement("div");
+    const insertBefore = Node.prototype.insertBefore;
+    const removeChild = Node.prototype.removeChild;
+    let insertions = 0;
+    let removals = 0;
+
+    mount(
+      () =>
+        h(
+          "ul",
+          null,
+          () => items().map((item) => h("li", { key: item.id }, item.label))
+        ),
+      container
+    );
+
+    Node.prototype.insertBefore = (function patchedInsertBefore<T extends Node>(this: Node, node: T, child: Node | null): T {
+      insertions += 1;
+      return insertBefore.call(this, node, child) as T;
+    }) as typeof Node.prototype.insertBefore;
+
+    Node.prototype.removeChild = (function patchedRemoveChild<T extends Node>(this: Node, child: T): T {
+      removals += 1;
+      return removeChild.call(this, child) as T;
+    }) as typeof Node.prototype.removeChild;
+
+    try {
+      setItems([
+        { id: 1, label: "One" },
+        { id: 2, label: "Two" }
+      ]);
+      await waitForMicrotask();
+    } finally {
+      Node.prototype.insertBefore = insertBefore;
+      Node.prototype.removeChild = removeChild;
+    }
+
+    expect(insertions).toBe(0);
+    expect(removals).toBe(0);
+  });
 });

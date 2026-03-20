@@ -1,7 +1,8 @@
 export const Fragment = Symbol("ShadowFragment");
 
+export type Key = number | string;
 export type Primitive = boolean | null | number | string | undefined;
-export type Props = Record<string, unknown>;
+export type Props = Record<string, unknown> & { key?: Key };
 export type Renderable = Primitive | JSXDescriptor | ReactiveChild | Renderable[];
 export type ReactiveChild = () => Renderable;
 export type Component = (props: Props & { children?: Renderable[] }) => Renderable;
