@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { createEffect } from "@shadowjs/core";
+
 import { createMutation, createQuery, createStore } from "../src/index";
 import { invalidateQueryKeys } from "../src/query";
 
@@ -219,5 +221,124 @@ describe("@shadowjs/state", () => {
     store.count = 5;
     expect(store.count).toBe(5);
     expect(store.open).toBe(false);
+  });
+
+  it("tracks nested property reads reactively", async () => {
+    const store = createStore({
+      user: {
+        name: "Sarthak"
+      }
+    });
+    let observed = "";
+
+    createEffect(() => {
+      observed = store.user.name;
+    });
+
+    expect(observed).toBe("Sarthak");
+
+    store.user.name = "Commander";
+    await waitForMicrotask();
+
+    expect(observed).toBe("Commander");
+  });
+
+  it("triggers effects that read nested properties when they change", async () => {
+    const store = createStore({
+      settings: {
+        title: "ShadowJS"
+      }
+    });
+    let runs = 0;
+
+    createEffect(() => {
+      runs += 1;
+      void store.settings.title;
+    });
+
+    store.settings.title = "ShadowJS v0.2";
+    await waitForMicrotask();
+
+    expect(runs).toBe(2);
+  });
+
+  it("does not trigger unrelated property effects for nested writes", async () => {
+    const store = createStore({
+      theme: "light",
+      user: {
+        name: "Sarthak"
+      }
+    });
+    let runs = 0;
+    let theme = "";
+
+    createEffect(() => {
+      runs += 1;
+      theme = store.theme;
+    });
+
+    store.user.name = "Commander";
+    await waitForMicrotask();
+
+    expect(runs).toBe(1);
+    expect(theme).toBe("light");
+  });
+
+  it("supports deeply nested reads and writes", async () => {
+    const store = createStore({
+      profile: {
+        identity: {
+          name: "Sarthak"
+        }
+      }
+    });
+    let observed = "";
+
+    createEffect(() => {
+      observed = store.profile.identity.name;
+    });
+
+    store.profile.identity.name = "Commander";
+    await waitForMicrotask();
+
+    expect(observed).toBe("Commander");
+  });
+
+  it("updates array consumers when an array property is replaced", async () => {
+    const store = createStore({
+      posts: ["one"]
+    });
+    let observed = 0;
+
+    createEffect(() => {
+      observed = store.posts.length;
+    });
+
+    store.posts = ["one", "two", "three"];
+    await waitForMicrotask();
+
+    expect(observed).toBe(3);
+  });
+
+  it("does not make array mutation methods reactive, but replacement still is", async () => {
+    const store = createStore({
+      posts: ["one"]
+    });
+    let runs = 0;
+
+    createEffect(() => {
+      runs += 1;
+      void store.posts.length;
+    });
+
+    store.posts.push("two");
+    await waitForMicrotask();
+
+    expect(runs).toBe(1);
+
+    store.posts = ["one", "two", "three"];
+    await waitForMicrotask();
+
+    expect(runs).toBe(2);
   });
 });
