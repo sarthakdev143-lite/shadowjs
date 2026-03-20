@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Production RPC server (`dist/server.mjs`)
 - Configurable effect error handling and runtime `ErrorBoundary`
 - Package publishing metadata and CommonJS exports
-- GitHub Actions CI/CD workflows
+- GitHub Actions CI workflow for `main` and pull requests
 
 ### Fixed
 - Effect memory leak; effects now disposable
