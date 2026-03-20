@@ -8,6 +8,7 @@ export interface QueryState<T> {
 
 type QueryRunner = () => Promise<void>;
 
+const inFlightRequests = new Map<string, Promise<unknown>>();
 const queryRegistry = new Map<string, Set<QueryRunner>>();
 let nextAnonymousQueryId = 0;
 
@@ -48,6 +49,8 @@ export async function invalidateQueryKeys(keys: string[]): Promise<void> {
   const queuedRunners = new Set<QueryRunner>();
 
   for (const key of keys) {
+    inFlightRequests.delete(key);
+
     const runners = queryRegistry.get(key);
 
     if (runners === undefined) {
@@ -69,8 +72,9 @@ export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): A
     error: null,
     loading: true
   });
+  let latestRequest: Promise<T> | null = null;
 
-  const run = async (): Promise<void> => {
+  const run = async (options?: { force?: boolean }): Promise<void> => {
     setState((previousState) => ({
       data: previousState.data,
       error: null,
@@ -78,7 +82,24 @@ export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): A
     }));
 
     try {
-      const data = await asyncFunction();
+      let request = options?.force ? undefined : (inFlightRequests.get(queryKey) as Promise<T> | undefined);
+
+      if (request === undefined) {
+        request = asyncFunction();
+        inFlightRequests.set(queryKey, request);
+        void request.finally(() => {
+          if (inFlightRequests.get(queryKey) === request) {
+            inFlightRequests.delete(queryKey);
+          }
+        });
+      }
+
+      latestRequest = request;
+      const data = await request;
+
+      if (latestRequest !== request) {
+        return;
+      }
 
       setState({
         data,
@@ -94,7 +115,7 @@ export function createQuery<T>(asyncFunction: () => Promise<T>, key?: string): A
     }
   };
 
-  registerQuery(queryKey, run);
+  registerQuery(queryKey, () => run({ force: true }));
   void run();
 
   return state;

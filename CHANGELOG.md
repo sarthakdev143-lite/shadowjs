@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Effect disposal via `createEffect` return value
 - `batch()` API for explicit update batching
 - `pending` and `error` signals on `createMutation`
+- In-flight request deduplication in `createQuery`
 - GitHub Actions CI/CD workflows
 
 ### Fixed
