@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createEffect, createMemo, createSignal, flushEffects } from "../src/index";
+import { createEffect, createMemo, createSignal, flushEffects, pendingEffects } from "../src/index";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -122,5 +122,58 @@ describe("@shadowjs/core", () => {
 
     expect(runs).toBe(1);
     expect(count()).toBe(1);
+  });
+
+  it("dispose stops an effect from re-running", async () => {
+    const [count, setCount] = createSignal(0);
+    const seenValues: number[] = [];
+    const dispose = createEffect(() => {
+      seenValues.push(count());
+    });
+
+    dispose();
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(seenValues).toEqual([0]);
+  });
+
+  it("dispose removes an effect from pendingEffects", () => {
+    const [count, setCount] = createSignal(0);
+    const dispose = createEffect(() => {
+      count();
+    });
+
+    setCount(1);
+    expect(pendingEffects.size).toBeGreaterThan(0);
+
+    dispose();
+
+    expect(pendingEffects.size).toBe(0);
+  });
+
+  it("dispose prevents dependencies from being re-registered", async () => {
+    const [count, setCount] = createSignal(0);
+    let runs = 0;
+    const dispose = createEffect(() => {
+      runs += 1;
+      count();
+    });
+
+    dispose();
+    setCount(1);
+    setCount(2);
+    await waitForMicrotask();
+
+    expect(runs).toBe(1);
+  });
+
+  it("dispose is idempotent", () => {
+    const dispose = createEffect(() => {});
+
+    expect(() => {
+      dispose();
+      dispose();
+    }).not.toThrow();
   });
 });

@@ -1,5 +1,5 @@
 import { currentObserver, runWithObserver } from "./context";
-import { scheduleEffect } from "./scheduler";
+import { pendingEffects, scheduleEffect } from "./scheduler";
 
 export type Accessor<T> = () => T;
 export type Updater<T> = T | ((previousValue: T) => T);
@@ -114,7 +114,7 @@ export function createSignal<T>(initialValue: T): [Accessor<T>, Setter<T>] {
   return [read, write];
 }
 
-export function createEffect(effect: () => void): void {
+export function createEffect(effect: () => void): () => void {
   const computation = createComputation("effect", () => {
     computation.running = true;
     computation.dirty = false;
@@ -128,6 +128,13 @@ export function createEffect(effect: () => void): void {
   });
 
   computation.execute();
+
+  return function dispose(): void {
+    cleanupComputation(computation);
+    computation.dirty = false;
+    computation.scheduled = false;
+    pendingEffects.delete(computation);
+  };
 }
 
 export function createMemo<T>(memo: () => T): Accessor<T> {
