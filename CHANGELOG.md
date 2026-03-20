@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In-flight request deduplication in `createQuery`
 - Source maps from compiler transforms
 - Production RPC server (`dist/server.mjs`)
+- Configurable effect error handling and runtime `ErrorBoundary`
 - GitHub Actions CI/CD workflows
 
 ### Fixed

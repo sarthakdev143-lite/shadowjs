@@ -1,5 +1,5 @@
 import { currentObserver, runWithObserver } from "./context";
-import { pendingEffects, scheduleEffect } from "./scheduler";
+import { pendingEffects, reportEffectError, scheduleEffect } from "./scheduler";
 
 export type Accessor<T> = () => T;
 export type Updater<T> = T | ((previousValue: T) => T);
@@ -127,7 +127,11 @@ export function createEffect(effect: () => void): () => void {
     }
   });
 
-  computation.execute();
+  try {
+    computation.execute();
+  } catch (error) {
+    reportEffectError(error, computation);
+  }
 
   return function dispose(): void {
     cleanupComputation(computation);

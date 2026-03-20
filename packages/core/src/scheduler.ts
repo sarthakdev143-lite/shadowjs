@@ -1,9 +1,14 @@
 import type { Computation } from "./signal";
 
+export type EffectErrorHandler = (error: unknown, computation: Computation) => void;
+
 export const pendingEffects = new Set<Computation>();
 
 export let isFlushing = false;
 let batchDepth = 0;
+let effectErrorHandler: EffectErrorHandler = (error) => {
+  console.error("[ShadowJS] Uncaught effect error:", error);
+};
 let isFlushQueued = false;
 
 function getPriority(computation: Computation): number {
@@ -61,6 +66,14 @@ export function scheduleEffect(computation: Computation): void {
   queueFlush();
 }
 
+export function setEffectErrorHandler(handler: EffectErrorHandler): void {
+  effectErrorHandler = handler;
+}
+
+export function reportEffectError(error: unknown, computation: Computation): void {
+  effectErrorHandler(error, computation);
+}
+
 export function flushEffects(): void {
   if (isFlushing) {
     return;
@@ -83,7 +96,11 @@ export function flushEffects(): void {
         continue;
       }
 
-      computation.execute();
+      try {
+        computation.execute();
+      } catch (error) {
+        reportEffectError(error, computation);
+      }
     }
   } finally {
     isFlushing = false;
