@@ -1,0 +1,18 @@
+{
+  "name": "@shadowjs/benchmark",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "vitest bench --run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@shadowjs/core": "workspace:*",
+    "@shadowjs/runtime": "workspace:*"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0",
+    "vitest": "^2.1.8"
+  }
+}

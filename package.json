@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "bench": "corepack pnpm --filter @shadowjs/benchmark bench",
     "build": "corepack pnpm -r --if-present build",
     "test": "corepack pnpm -r --if-present test",
     "typecheck": "corepack pnpm -r --if-present typecheck",
