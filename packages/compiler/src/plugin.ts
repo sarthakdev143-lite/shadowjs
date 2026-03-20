@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
@@ -6,6 +6,7 @@ import type { Plugin, ViteDevServer } from "vite";
 
 import { analyzeServerImports } from "./analyzer";
 import { getRPCRoutePath } from "./rpc-gen";
+import { generateProductionServer } from "./server-build";
 import { transformServerImports } from "./transform";
 
 function isServerFile(id: string): boolean {
@@ -118,6 +119,15 @@ export function shadowjs(): Plugin {
   const routeRegistry = new Map<string, string>();
 
   return {
+    closeBundle() {
+      if (routeRegistry.size === 0) {
+        return;
+      }
+
+      const outDir = resolve(process.cwd(), "dist");
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(resolve(outDir, "server.mjs"), generateProductionServer(routeRegistry), "utf8");
+    },
     configureServer(server) {
       installRpcMiddleware(server, routeRegistry);
     },

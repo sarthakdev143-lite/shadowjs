@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `pending` and `error` signals on `createMutation`
 - In-flight request deduplication in `createQuery`
 - Source maps from compiler transforms
+- Production RPC server (`dist/server.mjs`)
 - GitHub Actions CI/CD workflows
 
 ### Fixed
