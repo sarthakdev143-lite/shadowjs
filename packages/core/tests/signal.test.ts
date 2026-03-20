@@ -1,6 +1,14 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { batch, createEffect, createMemo, createSignal, flushEffects, pendingEffects } from "../src/index";
+import {
+  batch,
+  createEffect,
+  createMemo,
+  createSignal,
+  flushEffects,
+  pendingEffects,
+  setEffectErrorHandler
+} from "../src/index";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -10,6 +18,9 @@ function waitForMicrotask(): Promise<void> {
 
 afterEach(() => {
   flushEffects();
+  setEffectErrorHandler((error) => {
+    console.error("[ShadowJS] Uncaught effect error:", error);
+  });
 });
 
 describe("@shadowjs/core", () => {
@@ -237,5 +248,98 @@ describe("@shadowjs/core", () => {
     });
 
     expect(count()).toBe(5);
+  });
+
+  it("does not crash the scheduler when an effect throws", async () => {
+    const [count, setCount] = createSignal(0);
+    const [other, setOther] = createSignal(0);
+    const handler = vi.fn();
+    const seenValues: number[] = [];
+
+    setEffectErrorHandler(handler);
+
+    createEffect(() => {
+      if (count() > 0) {
+        throw new Error("boom");
+      }
+    });
+
+    createEffect(() => {
+      seenValues.push(other());
+    });
+
+    setCount(1);
+    setOther(1);
+    await waitForMicrotask();
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(seenValues).toEqual([0, 1]);
+  });
+
+  it("continues running other pending effects after one throws", async () => {
+    const [failing, setFailing] = createSignal(0);
+    const [stable, setStable] = createSignal(0);
+    const handler = vi.fn();
+    const runs: number[] = [];
+
+    setEffectErrorHandler(handler);
+
+    createEffect(() => {
+      if (failing() === 1) {
+        throw new Error("failure");
+      }
+    });
+
+    createEffect(() => {
+      runs.push(stable());
+    });
+
+    setFailing(1);
+    setStable(1);
+    await waitForMicrotask();
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(runs).toEqual([0, 1]);
+  });
+
+  it("calls the configured effect error handler with the thrown error", async () => {
+    const [count, setCount] = createSignal(0);
+    const handler = vi.fn();
+
+    setEffectErrorHandler(handler);
+
+    createEffect(() => {
+      if (count() === 1) {
+        throw new Error("broken");
+      }
+    });
+
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0]?.[0]).toBeInstanceOf(Error);
+    expect((handler.mock.calls[0]?.[0] as Error).message).toBe("broken");
+  });
+
+  it("replaces the effect error handler at any time", async () => {
+    const [count, setCount] = createSignal(0);
+    const firstHandler = vi.fn();
+    const secondHandler = vi.fn();
+
+    setEffectErrorHandler(firstHandler);
+
+    createEffect(() => {
+      if (count() === 1) {
+        throw new Error("broken");
+      }
+    });
+
+    setEffectErrorHandler(secondHandler);
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(firstHandler).not.toHaveBeenCalled();
+    expect(secondHandler).toHaveBeenCalledTimes(1);
   });
 });
