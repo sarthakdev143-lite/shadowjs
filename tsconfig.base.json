@@ -6,10 +6,10 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "@shadowjs/compiler": ["packages/compiler/src/index.ts"],
-      "@shadowjs/core": ["packages/core/src/index.ts"],
-      "@shadowjs/runtime": ["packages/runtime/src/index.ts"],
-      "@shadowjs/state": ["packages/state/src/index.ts"]
+      "@murkjs/compiler": ["packages/compiler/src/index.ts"],
+      "@murkjs/core": ["packages/core/src/index.ts"],
+      "@murkjs/runtime": ["packages/runtime/src/index.ts"],
+      "@murkjs/state": ["packages/state/src/index.ts"]
     },
     "jsx": "react",
     "jsxFactory": "h",

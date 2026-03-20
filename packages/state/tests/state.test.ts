@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createEffect } from "@shadowjs/core";
+import { createEffect } from "@murkjs/core";
 
 import { createMutation, createQuery, createStore } from "../src/index";
 import { getQueryRegistrySize, invalidateQueryKeys, resetQueryRegistryForTests } from "../src/query";
@@ -26,7 +26,7 @@ function createDeferred<T>() {
   };
 }
 
-describe("@shadowjs/state", () => {
+describe("@murkjs/state", () => {
   afterEach(() => {
     resetQueryRegistryForTests();
   });
@@ -121,17 +121,17 @@ describe("@shadowjs/state", () => {
       invalidates: []
     });
 
-    const result = await mutation.mutate("shadowjs");
+    const result = await mutation.mutate("murkjs");
 
-    expect(createPost).toHaveBeenCalledWith("shadowjs");
-    expect(result).toBe("SHADOWJS");
+    expect(createPost).toHaveBeenCalledWith("murkjs");
+    expect(result).toBe("MURKJS");
   });
 
   it("createMutation invalidation triggers a query refetch", async () => {
     let fetchCount = 0;
     const getPosts = vi.fn(async () => {
       fetchCount += 1;
-      return [{ id: fetchCount, title: "ShadowJS" }];
+      return [{ id: fetchCount, title: "MurkJS" }];
     });
     const posts = createQuery(getPosts, "posts");
 
@@ -144,7 +144,7 @@ describe("@shadowjs/state", () => {
     await addPost.mutate("Signals");
 
     expect(getPosts).toHaveBeenCalledTimes(2);
-    expect(posts().data).toEqual([{ id: 2, title: "ShadowJS" }]);
+    expect(posts().data).toEqual([{ id: 2, title: "MurkJS" }]);
     expect(posts().loading).toBe(false);
   });
 
@@ -250,7 +250,7 @@ describe("@shadowjs/state", () => {
   it("triggers effects that read nested properties when they change", async () => {
     const store = createStore({
       settings: {
-        title: "ShadowJS"
+        title: "MurkJS"
       }
     });
     let runs = 0;
@@ -260,7 +260,7 @@ describe("@shadowjs/state", () => {
       void store.settings.title;
     });
 
-    store.settings.title = "ShadowJS v0.2";
+    store.settings.title = "MurkJS v0.2";
     await waitForMicrotask();
 
     expect(runs).toBe(2);
@@ -359,7 +359,7 @@ describe("@shadowjs/state", () => {
   });
 
   it("does not refetch invalidated keys after the query scope is disposed", async () => {
-    const getPosts = vi.fn(async () => "shadowjs");
+    const getPosts = vi.fn(async () => "murkjs");
     const dispose = createEffect(() => {
       void createQuery(getPosts, "disposed-query");
     });

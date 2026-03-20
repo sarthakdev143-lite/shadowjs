@@ -8,7 +8,7 @@ export const pendingEffects = new Set<Computation>();
 export let isFlushing = false;
 let batchDepth = 0;
 let effectErrorHandler: EffectErrorHandler = (error) => {
-  console.error("[ShadowJS] Uncaught effect error:", error);
+  console.error("[MurkJS] Uncaught effect error:", error);
 };
 let isFlushQueued = false;
 

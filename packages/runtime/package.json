@@ -1,5 +1,5 @@
 {
-  "name": "@shadowjs/runtime",
+  "name": "@murkjs/runtime",
   "version": "0.2.0",
   "license": "MIT",
   "type": "module",
@@ -23,6 +23,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shadowjs/core": "workspace:*"
+    "@murkjs/core": "workspace:*"
   }
 }

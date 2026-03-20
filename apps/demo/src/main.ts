@@ -1,4 +1,4 @@
-import { mount } from "@shadowjs/runtime";
+import { mount } from "@murkjs/runtime";
 
 import { Feed } from "./feed";
 import "./styles.css";
@@ -6,7 +6,7 @@ import "./styles.css";
 const app = document.querySelector("#app");
 
 if (!(app instanceof Element)) {
-  throw new Error("ShadowJS demo root element was not found.");
+  throw new Error("MurkJS demo root element was not found.");
 }
 
 mount(Feed, app);

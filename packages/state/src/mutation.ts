@@ -1,4 +1,4 @@
-import { createSignal, type Accessor } from "@shadowjs/core";
+import { createSignal, type Accessor } from "@murkjs/core";
 
 import { invalidateQueryKeys } from "./query";
 

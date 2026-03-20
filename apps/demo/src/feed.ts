@@ -1,12 +1,12 @@
-import { createSignal } from "@shadowjs/core";
-import { h } from "@shadowjs/runtime";
-import { createMutation, createQuery, createStore } from "@shadowjs/state";
+import { createSignal } from "@murkjs/core";
+import { h } from "@murkjs/runtime";
+import { createMutation, createQuery, createStore } from "@murkjs/state";
 
 import { addPost, getPosts } from "./posts.server";
 
 const [count, setCount] = createSignal(0);
 const composer = createStore({
-  draft: "ShadowJS turns server imports into RPC."
+  draft: "MurkJS turns server imports into RPC."
 });
 const posts = createQuery(getPosts, "posts");
 const { mutate: submitPost, pending: isSubmitting } = createMutation(addPost, {
@@ -56,7 +56,7 @@ export function Feed() {
     h(
       "section",
       { className: "hero panel" },
-      h("p", { className: "eyebrow" }, "ShadowJS Demo"),
+      h("p", { className: "eyebrow" }, "MurkJS Demo"),
       h("h1", null, "Signals, RPC, and cache invalidation living in one graph."),
       h(
         "p",

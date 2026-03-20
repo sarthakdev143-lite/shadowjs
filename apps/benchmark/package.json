@@ -1,5 +1,5 @@
 {
-  "name": "@shadowjs/benchmark",
+  "name": "@murkjs/benchmark",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shadowjs/core": "workspace:*",
-    "@shadowjs/runtime": "workspace:*"
+    "@murkjs/core": "workspace:*",
+    "@murkjs/runtime": "workspace:*"
   },
   "devDependencies": {
     "jsdom": "^26.0.0",

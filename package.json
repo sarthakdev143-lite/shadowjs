@@ -1,13 +1,13 @@
 {
-  "name": "shadowjs",
+  "name": "murkjs",
   "private": true,
   "version": "0.2.0",
   "scripts": {
-    "bench": "corepack pnpm --filter @shadowjs/benchmark bench",
+    "bench": "corepack pnpm --filter @murkjs/benchmark bench",
     "build": "corepack pnpm -r --if-present build",
     "test": "corepack pnpm -r --if-present test",
     "typecheck": "corepack pnpm -r --if-present typecheck",
-    "dev": "corepack pnpm --filter @shadowjs/demo dev"
+    "dev": "corepack pnpm --filter @murkjs/demo dev"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.28.0",

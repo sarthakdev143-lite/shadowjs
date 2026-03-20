@@ -4,9 +4,9 @@ about: Something is broken
 ---
 
 **Package**
-<!-- e.g. @shadowjs/core -->
+<!-- e.g. @murkjs/core -->
 
-**ShadowJS version**
+**MurkJS version**
 
 **Description**
 <!-- What happened vs what you expected -->
