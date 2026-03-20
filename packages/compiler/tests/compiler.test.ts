@@ -1,5 +1,7 @@
+import { parse } from "@babel/parser";
 import { describe, expect, it } from "vitest";
 
+import { generateProductionServer } from "../src/index";
 import { shadowjs } from "../src/plugin";
 import { generateRPCStub } from "../src/rpc-gen";
 import { transformServerImports } from "../src/transform";
@@ -64,5 +66,14 @@ describe("@shadowjs/compiler", () => {
     const result = transformHook?.("export async function getPosts() {}", "/src/posts.server.ts");
 
     expect(result).toBeNull();
+  });
+
+  it("generates a production RPC server source file", () => {
+    const source = generateProductionServer(new Map([["posts", "/abs/posts.server.js"]]));
+
+    expect(source.length).toBeGreaterThan(0);
+    expect(source).toContain('"posts": "/abs/posts.server.js"');
+    expect(source).toContain("/__rpc/");
+    expect(() => parse(source, { sourceType: "module" })).not.toThrow();
   });
 });
