@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { createMutation, createQuery, createStore } from "../src/index";
+import { invalidateQueryKeys } from "../src/query";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -41,6 +42,68 @@ describe("@shadowjs/state", () => {
 
     expect(query()).toEqual({
       data: "hello",
+      error: null,
+      loading: false
+    });
+  });
+
+  it("createQuery shares one in-flight request for the same key", async () => {
+    const deferred = createDeferred<string>();
+    const getPosts = vi.fn(() => deferred.promise);
+    const firstQuery = createQuery(getPosts, "posts");
+    const secondQuery = createQuery(getPosts, "posts");
+
+    expect(getPosts).toHaveBeenCalledTimes(1);
+
+    deferred.resolve("shared");
+    await waitForMicrotask();
+
+    expect(firstQuery().data).toBe("shared");
+    expect(secondQuery().data).toBe("shared");
+  });
+
+  it("createQuery starts a fresh request after the prior one resolves", async () => {
+    const getPosts = vi
+      .fn<() => Promise<string>>()
+      .mockResolvedValueOnce("first")
+      .mockResolvedValueOnce("second");
+
+    const firstQuery = createQuery(getPosts, "posts-refresh");
+    await waitForMicrotask();
+
+    const secondQuery = createQuery(getPosts, "posts-refresh");
+    await waitForMicrotask();
+
+    expect(getPosts).toHaveBeenCalledTimes(2);
+    expect(firstQuery().data).toBe("first");
+    expect(secondQuery().data).toBe("second");
+  });
+
+  it("invalidateQueryKeys forces a fresh request even if one is already in flight", async () => {
+    const firstRequest = createDeferred<string>();
+    const secondRequest = createDeferred<string>();
+    const getPosts = vi
+      .fn<() => Promise<string>>()
+      .mockImplementationOnce(() => firstRequest.promise)
+      .mockImplementationOnce(() => secondRequest.promise);
+    const posts = createQuery(getPosts, "posts-invalidated");
+
+    const invalidation = invalidateQueryKeys(["posts-invalidated"]);
+
+    expect(getPosts).toHaveBeenCalledTimes(2);
+
+    firstRequest.resolve("stale");
+    await waitForMicrotask();
+
+    expect(posts().loading).toBe(true);
+    expect(posts().data).toBeNull();
+
+    secondRequest.resolve("fresh");
+    await invalidation;
+    await waitForMicrotask();
+
+    expect(posts()).toEqual({
+      data: "fresh",
       error: null,
       loading: false
     });
