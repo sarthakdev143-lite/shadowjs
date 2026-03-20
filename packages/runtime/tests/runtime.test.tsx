@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { createSignal } from "@shadowjs/core";
 
-import { createDOMNode, h, mount } from "../src/index";
+import { ErrorBoundary, createDOMNode, h, mount } from "../src/index";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -253,5 +253,59 @@ describe("@shadowjs/runtime", () => {
 
     expect(insertions).toBe(0);
     expect(removals).toBe(0);
+  });
+
+  it("lets sibling error boundaries catch their own errors independently", async () => {
+    const [firstBroken, setFirstBroken] = createSignal(false);
+    const [secondBroken, setSecondBroken] = createSignal(false);
+    const container = document.createElement("div");
+
+    mount(
+      () =>
+        h(
+          "section",
+          null,
+          h(
+            ErrorBoundary,
+            {
+              fallback: (error: Error) => h("p", { id: "first-fallback" }, error.message)
+            },
+            h("span", { id: "first-child" }, () => {
+              if (firstBroken()) {
+                throw new Error("first boundary");
+              }
+
+              return "First ok";
+            })
+          ),
+          h(
+            ErrorBoundary,
+            {
+              fallback: (error: Error) => h("p", { id: "second-fallback" }, error.message)
+            },
+            h("span", { id: "second-child" }, () => {
+              if (secondBroken()) {
+                throw new Error("second boundary");
+              }
+
+              return "Second ok";
+            })
+          )
+        ),
+      container
+    );
+
+    setFirstBroken(true);
+    await waitForMicrotask();
+
+    expect(container.querySelector("#first-fallback")?.textContent).toBe("first boundary");
+    expect(container.querySelector("#second-fallback")).toBeNull();
+    expect(container.querySelector("#second-child")?.textContent).toBe("Second ok");
+
+    setSecondBroken(true);
+    await waitForMicrotask();
+
+    expect(container.querySelector("#first-fallback")?.textContent).toBe("first boundary");
+    expect(container.querySelector("#second-fallback")?.textContent).toBe("second boundary");
   });
 });
