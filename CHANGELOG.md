@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keyed list reconciliation for reactive runtime children
 - Deep reactive nested store access
 - Scoped stacked effect error boundaries
+- Automatic query registry cleanup via computation disposal
 
 ## [0.1.0] - 2026-03-20
 
