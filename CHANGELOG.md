@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deep reactive nested store access
 - Scoped stacked effect error boundaries
 - Automatic query registry cleanup via computation disposal
+- Production RPC server static asset serving with SPA fallback
 
 ## [0.1.0] - 2026-03-20
 

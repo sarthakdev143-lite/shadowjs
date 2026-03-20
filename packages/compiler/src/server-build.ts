@@ -2,10 +2,25 @@ export function generateProductionServer(registry: Map<string, string>): string 
   const entries = JSON.stringify(Object.fromEntries(registry), null, 2);
 
   return `
+import { createReadStream, existsSync, statSync } from "node:fs"
 import { createServer } from "node:http"
+import { extname, join } from "node:path"
 import { pathToFileURL, URL } from "node:url"
+import { fileURLToPath } from "node:url"
 
 const registry = ${entries}
+const STATIC_DIR = process.env.STATIC_DIR ?? fileURLToPath(new URL("./client", import.meta.url))
+const MIME_TYPES = {
+  ".css": "text/css",
+  ".html": "text/html",
+  ".ico": "image/x-icon",
+  ".js": "application/javascript",
+  ".json": "application/json",
+  ".mjs": "application/javascript",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".woff2": "font/woff2"
+}
 
 async function readBody(req) {
   let raw = ""
@@ -20,12 +35,31 @@ function writeJson(res, status, body) {
   res.end(JSON.stringify(body))
 }
 
+function serveStatic(req, res) {
+  const urlPath = new URL(req.url ?? "/", "http://localhost").pathname
+  const relativePath = urlPath.replace(/^\\/+/, "")
+  let filePath = join(STATIC_DIR, relativePath)
+
+  if (!existsSync(filePath) || statSync(filePath).isDirectory()) {
+    filePath = join(STATIC_DIR, "index.html")
+  }
+
+  if (!existsSync(filePath)) {
+    res.writeHead(404)
+    res.end("Not found")
+    return
+  }
+
+  const contentType = MIME_TYPES[extname(filePath)] ?? "application/octet-stream"
+  res.writeHead(200, { "Content-Type": contentType })
+  createReadStream(filePath).pipe(res)
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost")
 
   if (!url.pathname.startsWith("/__rpc/")) {
-    res.writeHead(404)
-    res.end()
+    serveStatic(req, res)
     return
   }
 
