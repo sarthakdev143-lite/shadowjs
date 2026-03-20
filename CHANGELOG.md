@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `batch()` API for explicit update batching
 - `pending` and `error` signals on `createMutation`
 - In-flight request deduplication in `createQuery`
+- Source maps from compiler transforms
 - GitHub Actions CI/CD workflows
 
 ### Fixed
