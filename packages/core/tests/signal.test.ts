@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createEffect, createMemo, createSignal, flushEffects, pendingEffects } from "../src/index";
+import { batch, createEffect, createMemo, createSignal, flushEffects, pendingEffects } from "../src/index";
 
 function waitForMicrotask(): Promise<void> {
   return new Promise((resolve) => {
@@ -175,5 +175,67 @@ describe("@shadowjs/core", () => {
       dispose();
       dispose();
     }).not.toThrow();
+  });
+
+  it("batch collapses multiple signal writes into one effect run", () => {
+    const [count, setCount] = createSignal(0);
+    let runs = 0;
+
+    createEffect(() => {
+      runs += 1;
+      count();
+    });
+
+    batch(() => {
+      setCount(1);
+      setCount(2);
+      setCount(3);
+    });
+
+    expect(runs).toBe(2);
+    expect(count()).toBe(3);
+  });
+
+  it("nested batch defers flushing until the outer batch exits", () => {
+    const [count, setCount] = createSignal(0);
+    let runs = 0;
+
+    createEffect(() => {
+      runs += 1;
+      count();
+    });
+
+    batch(() => {
+      setCount(1);
+
+      batch(() => {
+        setCount(2);
+      });
+
+      expect(runs).toBe(1);
+      setCount(3);
+    });
+
+    expect(runs).toBe(2);
+    expect(count()).toBe(3);
+  });
+
+  it("batch with no signal writes does not throw", () => {
+    expect(() => {
+      batch(() => {
+        return undefined;
+      });
+    }).not.toThrow();
+  });
+
+  it("signal writes inside batch read correctly after the batch", () => {
+    const [count, setCount] = createSignal(0);
+
+    batch(() => {
+      setCount(5);
+      expect(count()).toBe(5);
+    });
+
+    expect(count()).toBe(5);
   });
 });

@@ -3,6 +3,7 @@ import type { Computation } from "./signal";
 export const pendingEffects = new Set<Computation>();
 
 export let isFlushing = false;
+let batchDepth = 0;
 let isFlushQueued = false;
 
 function getPriority(computation: Computation): number {
@@ -27,12 +28,26 @@ function getNextComputation(): Computation | null {
 }
 
 function queueFlush(): void {
-  if (isFlushQueued || isFlushing) {
+  if (isFlushQueued || isFlushing || batchDepth > 0) {
     return;
   }
 
   isFlushQueued = true;
   queueMicrotask(flushEffects);
+}
+
+export function batch<T>(fn: () => T): T {
+  batchDepth += 1;
+
+  try {
+    return fn();
+  } finally {
+    batchDepth -= 1;
+
+    if (batchDepth === 0 && pendingEffects.size > 0) {
+      flushEffects();
+    }
+  }
 }
 
 export function scheduleEffect(computation: Computation): void {
