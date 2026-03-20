@@ -8,7 +8,7 @@ describe("@shadowjs/compiler", () => {
   it("passes through files without .server imports", () => {
     const source = 'import { createSignal } from "@shadowjs/core";\n\nconst count = createSignal(0);';
 
-    expect(transformServerImports(source)).toBe(source);
+    expect(transformServerImports(source)).toBeNull();
   });
 
   it("replaces .server imports with fetch stubs", () => {
@@ -20,10 +20,19 @@ describe("@shadowjs/compiler", () => {
     ].join("\n");
     const transformed = transformServerImports(source);
 
-    expect(transformed).not.toContain('from "./posts.server"');
-    expect(transformed).toContain('fetch("/__rpc/posts/getPosts"');
-    expect(transformed).toContain("export const getPosts");
-    expect(transformed).toContain('import { createQuery } from "@shadowjs/state";');
+    expect(transformed).not.toBeNull();
+    expect(transformed?.code).not.toContain('from "./posts.server"');
+    expect(transformed?.code).toContain('fetch("/__rpc/posts/getPosts"');
+    expect(transformed?.code).toContain("export const getPosts");
+    expect(transformed?.code).toContain('import { createQuery } from "@shadowjs/state";');
+  });
+
+  it("returns a valid source map for transformed files", () => {
+    const source = 'import { getPosts } from "./posts.server";\n\nconst posts = getPosts;';
+    const transformed = transformServerImports(source);
+
+    expect(transformed).not.toBeNull();
+    expect(() => JSON.parse(transformed!.map)).not.toThrow();
   });
 
   it("generates the expected RPC stub shape", () => {
@@ -41,9 +50,9 @@ describe("@shadowjs/compiler", () => {
   it("is idempotent when run twice", () => {
     const source = 'import { getPosts } from "./posts.server";\n\nconst posts = getPosts;';
     const once = transformServerImports(source);
-    const twice = transformServerImports(once);
+    const twice = transformServerImports(once!.code);
 
-    expect(twice).toBe(once);
+    expect(twice).toBeNull();
   });
 
   it("skips transforming server-only files", () => {

@@ -140,14 +140,11 @@ export function shadowjs(): Plugin {
 
       const transformed = transformServerImports(code);
 
-      if (transformed === code) {
+      if (transformed === null) {
         return null;
       }
 
-      return {
-        code: transformed,
-        map: null
-      };
+      return transformed;
     }
   };
 }
