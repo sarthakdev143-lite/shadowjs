@@ -1,3 +1,4 @@
+import { getActiveErrorHandler } from "./context";
 import type { Computation } from "./signal";
 
 export type EffectErrorHandler = (error: unknown, computation: Computation) => void;
@@ -71,6 +72,13 @@ export function setEffectErrorHandler(handler: EffectErrorHandler): void {
 }
 
 export function reportEffectError(error: unknown, computation: Computation): void {
+  const handler = getActiveErrorHandler() ?? computation.errorHandler;
+
+  if (handler !== null) {
+    handler(error, computation);
+    return;
+  }
+
   effectErrorHandler(error, computation);
 }
 

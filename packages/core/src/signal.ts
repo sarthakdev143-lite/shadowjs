@@ -1,4 +1,4 @@
-import { currentObserver, runWithObserver } from "./context";
+import { currentObserver, getActiveErrorHandler, runWithErrorHandler, runWithObserver } from "./context";
 import { pendingEffects, reportEffectError, scheduleEffect } from "./scheduler";
 
 export type Accessor<T> = () => T;
@@ -22,6 +22,7 @@ interface MemoState<T> extends DependencySource {
 export interface Computation {
   dependencies: Set<DependencySource>;
   dirty: boolean;
+  errorHandler: ((error: unknown, computation: Computation) => void) | null;
   execute: () => void;
   id: number;
   kind: "effect" | "memo";
@@ -80,6 +81,7 @@ function createComputation(kind: "effect" | "memo", execute: () => void): Comput
   return {
     dependencies: new Set<DependencySource>(),
     dirty: false,
+    errorHandler: getActiveErrorHandler(),
     execute,
     id: nextComputationId++,
     kind,
@@ -121,7 +123,7 @@ export function createEffect(effect: () => void): () => void {
     cleanupComputation(computation);
 
     try {
-      runWithObserver(computation, effect);
+      runWithErrorHandler(computation.errorHandler, () => runWithObserver(computation, effect));
     } finally {
       computation.running = false;
     }
@@ -153,7 +155,7 @@ export function createMemo<T>(memo: () => T): Accessor<T> {
     cleanupComputation(computation);
 
     try {
-      state.value = runWithObserver(computation, memo);
+      state.value = runWithErrorHandler(computation.errorHandler, () => runWithObserver(computation, memo));
       state.initialized = true;
     } finally {
       computation.running = false;

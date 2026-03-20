@@ -7,6 +7,7 @@ import {
   createSignal,
   flushEffects,
   pendingEffects,
+  pushErrorHandler,
   setEffectErrorHandler
 } from "../src/index";
 
@@ -341,5 +342,104 @@ describe("@shadowjs/core", () => {
 
     expect(firstHandler).not.toHaveBeenCalled();
     expect(secondHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it("pushErrorHandler captures errors in its scope", async () => {
+    const [count, setCount] = createSignal(0);
+    const scopedHandler = vi.fn();
+    const popHandler = pushErrorHandler(scopedHandler);
+
+    createEffect(() => {
+      if (count() === 1) {
+        throw new Error("scoped");
+      }
+    });
+
+    popHandler();
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(scopedHandler).toHaveBeenCalledTimes(1);
+    expect((scopedHandler.mock.calls[0]?.[0] as Error).message).toBe("scoped");
+  });
+
+  it("keeps pushed handlers independent and prefers the inner one", async () => {
+    const [outerCount, setOuterCount] = createSignal(0);
+    const [innerCount, setInnerCount] = createSignal(0);
+    const outerHandler = vi.fn();
+    const innerHandler = vi.fn();
+    const popOuter = pushErrorHandler(outerHandler);
+
+    createEffect(() => {
+      if (outerCount() === 1) {
+        throw new Error("outer");
+      }
+    });
+
+    const popInner = pushErrorHandler(innerHandler);
+
+    createEffect(() => {
+      if (innerCount() === 1) {
+        throw new Error("inner");
+      }
+    });
+
+    popInner();
+    popOuter();
+    setOuterCount(1);
+    setInnerCount(1);
+    await waitForMicrotask();
+
+    expect(outerHandler).toHaveBeenCalledTimes(1);
+    expect(innerHandler).toHaveBeenCalledTimes(1);
+    expect((outerHandler.mock.calls[0]?.[0] as Error).message).toBe("outer");
+    expect((innerHandler.mock.calls[0]?.[0] as Error).message).toBe("inner");
+  });
+
+  it("restores the outer handler after the inner one is popped", async () => {
+    const [count, setCount] = createSignal(0);
+    const outerHandler = vi.fn();
+    const innerHandler = vi.fn();
+    const popOuter = pushErrorHandler(outerHandler);
+    const popInner = pushErrorHandler(innerHandler);
+
+    popInner();
+
+    createEffect(() => {
+      if (count() === 1) {
+        throw new Error("restored");
+      }
+    });
+
+    popOuter();
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(innerHandler).not.toHaveBeenCalled();
+    expect(outerHandler).toHaveBeenCalledTimes(1);
+    expect((outerHandler.mock.calls[0]?.[0] as Error).message).toBe("restored");
+  });
+
+  it("falls through to the global handler after a scoped handler is popped", async () => {
+    const [count, setCount] = createSignal(0);
+    const scopedHandler = vi.fn();
+    const globalHandler = vi.fn();
+    const popHandler = pushErrorHandler(scopedHandler);
+
+    popHandler();
+    setEffectErrorHandler(globalHandler);
+
+    createEffect(() => {
+      if (count() === 1) {
+        throw new Error("global");
+      }
+    });
+
+    setCount(1);
+    await waitForMicrotask();
+
+    expect(scopedHandler).not.toHaveBeenCalled();
+    expect(globalHandler).toHaveBeenCalledTimes(1);
+    expect((globalHandler.mock.calls[0]?.[0] as Error).message).toBe("global");
   });
 });

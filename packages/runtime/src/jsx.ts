@@ -5,7 +5,9 @@ export type Primitive = boolean | null | number | string | undefined;
 export type Props = Record<string, unknown> & { key?: Key };
 export type Renderable = Primitive | JSXDescriptor | ReactiveChild | Renderable[];
 export type ReactiveChild = () => Renderable;
-export type Component = (props: Props & { children?: Renderable[] }) => Renderable;
+export type Component = {
+  bivarianceHack(props: Props & { children?: Renderable[] }): Renderable;
+}["bivarianceHack"];
 export type Tag = Component | typeof Fragment | string;
 
 export interface JSXDescriptor {

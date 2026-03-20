@@ -5,6 +5,9 @@ import { configureKeyedReconciler, reconcileKeyedList, type KeyedNode } from "./
 
 type DOMPropertyTarget = Element & Record<string, unknown>;
 const nodeDisposers = new WeakMap<Node, Array<() => void>>();
+type ScopedReactiveChild = ReactiveChild & {
+  __shadowPopErrorHandler?: () => void;
+};
 type ReactiveNodeState =
   | {
       kind: "keyed";
@@ -239,22 +242,32 @@ function updateReactiveNodes(anchor: Comment, currentState: ReactiveNodeState, v
 
 function createReactiveNodes(accessor: ReactiveChild): Node[] {
   const anchor = document.createComment("shadow-anchor");
-  let currentState = createReactiveState(accessor());
-  let isFirstRun = true;
+  const scopedAccessor = accessor as ScopedReactiveChild;
+  const popErrorHandler = scopedAccessor.__shadowPopErrorHandler;
 
-  const dispose = createEffect(() => {
-    const value = accessor();
+  try {
+    let currentState = createReactiveState(accessor());
+    let isFirstRun = true;
 
-    if (isFirstRun) {
-      isFirstRun = false;
-      return;
+    const dispose = createEffect(() => {
+      const value = accessor();
+
+      if (isFirstRun) {
+        isFirstRun = false;
+        return;
+      }
+
+      currentState = updateReactiveNodes(anchor, currentState, value);
+    });
+    registerDisposer(anchor, dispose);
+
+    return [...getStateNodes(currentState), anchor];
+  } finally {
+    if (popErrorHandler !== undefined) {
+      delete scopedAccessor.__shadowPopErrorHandler;
+      popErrorHandler();
     }
-
-    currentState = updateReactiveNodes(anchor, currentState, value);
-  });
-  registerDisposer(anchor, dispose);
-
-  return [...getStateNodes(currentState), anchor];
+  }
 }
 
 function createElementNodes(descriptor: JSXDescriptor): Node[] {
