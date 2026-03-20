@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Effect disposal via `createEffect` return value
 - `batch()` API for explicit update batching
+- `pending` and `error` signals on `createMutation`
 - GitHub Actions CI/CD workflows
 
 ### Fixed

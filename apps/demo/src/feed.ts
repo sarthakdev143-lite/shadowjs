@@ -9,7 +9,7 @@ const composer = createStore({
   draft: "ShadowJS turns server imports into RPC."
 });
 const posts = createQuery(getPosts, "posts");
-const submitPost = createMutation(addPost, {
+const { mutate: submitPost, pending: isSubmitting } = createMutation(addPost, {
   invalidates: ["posts"]
 });
 
@@ -95,12 +95,12 @@ export function Feed() {
         "button",
         {
           className: "add-button",
-          disabled: () => composer.draft.trim().length === 0,
+          disabled: () => isSubmitting() || composer.draft.trim().length === 0,
           onClick: () => {
             void handleAddPost();
           }
         },
-        "Add Post"
+        () => (isSubmitting() ? "Adding..." : "Add Post")
       )
     ),
     h(
@@ -110,7 +110,7 @@ export function Feed() {
         "div",
         { className: "panel-head" },
         h("h2", null, "Server-backed posts"),
-        h("p", null, "createQuery(getPosts) + createMutation(addPost) + invalidates(['posts'])")
+        h("p", null, "createQuery(getPosts) + createMutation(addPost).mutate + invalidates(['posts'])")
       ),
       h("ul", { className: "post-list" }, renderPosts)
     )
