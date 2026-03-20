@@ -29,6 +29,7 @@ function renderPosts() {
       "li",
       {
         className: "post",
+        key: post.id,
         "data-post-id": String(post.id)
       },
       h("span", { className: "post-id" }, `#${post.id}`),

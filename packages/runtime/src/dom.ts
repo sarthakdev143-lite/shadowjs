@@ -1,9 +1,19 @@
 import { createEffect } from "@shadowjs/core";
 
 import { Fragment, type JSXDescriptor, type Primitive, type Props, type ReactiveChild, type Renderable } from "./jsx";
+import { configureKeyedReconciler, reconcileKeyedList, type KeyedNode } from "./reconciler";
 
 type DOMPropertyTarget = Element & Record<string, unknown>;
 const nodeDisposers = new WeakMap<Node, Array<() => void>>();
+type ReactiveNodeState =
+  | {
+      kind: "keyed";
+      items: KeyedNode[];
+    }
+  | {
+      kind: "nodes";
+      nodes: Node[];
+    };
 
 function isDescriptor(value: unknown): value is JSXDescriptor {
   if (typeof value !== "object" || value === null) {
@@ -15,6 +25,23 @@ function isDescriptor(value: unknown): value is JSXDescriptor {
 
 function isDOMNode(value: unknown): value is Node {
   return typeof Node !== "undefined" && value instanceof Node;
+}
+
+function isKeyedDescriptorArray(value: Renderable): value is JSXDescriptor[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    return false;
+  }
+
+  const [firstDescriptor] = value;
+
+  if (!isDescriptor(firstDescriptor) || (typeof firstDescriptor.props.key !== "string" && typeof firstDescriptor.props.key !== "number")) {
+    return false;
+  }
+
+  return value.every(
+    (entry) =>
+      isDescriptor(entry) && (typeof entry.props.key === "string" || typeof entry.props.key === "number")
+  );
 }
 
 function isTextValue(value: Renderable): value is Primitive {
@@ -39,6 +66,25 @@ function insertNodes(parent: Node, anchor: Node | null, nodes: Node[]): void {
   for (const node of nodes) {
     parent.insertBefore(node, anchor);
   }
+}
+
+function stripKeyProp(props: Props): Props {
+  const { key: _key, ...rest } = props;
+  return rest;
+}
+
+function flattenKeyedNodes(items: KeyedNode[]): Node[] {
+  const nodes: Node[] = [];
+
+  for (const item of items) {
+    nodes.push(...item.nodes, item.anchor);
+  }
+
+  return nodes;
+}
+
+function getStateNodes(state: ReactiveNodeState): Node[] {
+  return state.kind === "keyed" ? flattenKeyedNodes(state.items) : state.nodes;
 }
 
 function registerDisposer(node: Node, dispose: () => void): void {
@@ -96,7 +142,7 @@ function setElementProperty(element: Element, key: string, value: unknown): void
 
 function applyProps(element: Element, props: Props): void {
   for (const [key, value] of Object.entries(props)) {
-    if (key === "children") {
+    if (key === "children" || key === "key") {
       continue;
     }
 
@@ -120,31 +166,80 @@ function applyProps(element: Element, props: Props): void {
   }
 }
 
-function updateReactiveNodes(anchor: Comment, currentNodes: Node[], value: Renderable): Node[] {
-  if (currentNodes.length === 1 && currentNodes[0] instanceof Text && isTextValue(value)) {
-    currentNodes[0].data = toTextContent(value);
-    return currentNodes;
+function disposeNodes(nodes: Node[]): void {
+  for (const node of nodes) {
+    disposeNode(node);
+
+    if (node.parentNode !== null) {
+      node.parentNode.removeChild(node);
+    }
+  }
+}
+
+function disposeReactiveState(state: ReactiveNodeState): void {
+  if (state.kind === "keyed") {
+    for (const item of state.items) {
+      item.dispose();
+    }
+
+    return;
   }
 
-  const nextNodes = createDOMNodes(value);
+  disposeNodes(state.nodes);
+}
+
+function createReactiveState(value: Renderable): ReactiveNodeState {
+  if (isKeyedDescriptorArray(value)) {
+    return {
+      items: value.map((descriptor) => createKeyedNode(descriptor)),
+      kind: "keyed"
+    };
+  }
+
+  return {
+    kind: "nodes",
+    nodes: createDOMNodes(value)
+  };
+}
+
+function updateReactiveNodes(anchor: Comment, currentState: ReactiveNodeState, value: Renderable): ReactiveNodeState {
+  if (currentState.kind === "nodes" && currentState.nodes.length === 1 && currentState.nodes[0] instanceof Text && isTextValue(value)) {
+    currentState.nodes[0].data = toTextContent(value);
+    return currentState;
+  }
+
   const parent = anchor.parentNode;
 
   if (parent === null) {
-    return nextNodes;
+    disposeReactiveState(currentState);
+    return createReactiveState(value);
   }
 
-  for (const node of currentNodes) {
-    disposeNode(node);
-    parent.removeChild(node);
+  if (isKeyedDescriptorArray(value)) {
+    if (currentState.kind === "nodes") {
+      disposeNodes(currentState.nodes);
+    }
+
+    return {
+      items: reconcileKeyedList(parent, anchor, currentState.kind === "keyed" ? currentState.items : [], value),
+      kind: "keyed"
+    };
   }
 
+  disposeReactiveState(currentState);
+
+  const nextNodes = createDOMNodes(value);
   insertNodes(parent, anchor, nextNodes);
-  return nextNodes;
+
+  return {
+    kind: "nodes",
+    nodes: nextNodes
+  };
 }
 
 function createReactiveNodes(accessor: ReactiveChild): Node[] {
   const anchor = document.createComment("shadow-anchor");
-  let currentNodes = createDOMNodes(accessor());
+  let currentState = createReactiveState(accessor());
   let isFirstRun = true;
 
   const dispose = createEffect(() => {
@@ -155,11 +250,11 @@ function createReactiveNodes(accessor: ReactiveChild): Node[] {
       return;
     }
 
-    currentNodes = updateReactiveNodes(anchor, currentNodes, value);
+    currentState = updateReactiveNodes(anchor, currentState, value);
   });
   registerDisposer(anchor, dispose);
 
-  return [...currentNodes, anchor];
+  return [...getStateNodes(currentState), anchor];
 }
 
 function createElementNodes(descriptor: JSXDescriptor): Node[] {
@@ -170,7 +265,7 @@ function createElementNodes(descriptor: JSXDescriptor): Node[] {
   if (typeof descriptor.tag === "function") {
     return createDOMNodes(
       descriptor.tag({
-        ...descriptor.props,
+        ...stripKeyProp(descriptor.props),
         children: descriptor.children
       })
     );
@@ -184,6 +279,35 @@ function createElementNodes(descriptor: JSXDescriptor): Node[] {
   }
 
   return [element];
+}
+
+function createKeyedNode(descriptor: JSXDescriptor): KeyedNode {
+  const key = descriptor.props.key;
+
+  if (typeof key !== "string" && typeof key !== "number") {
+    throw new Error("Keyed list items must use string or number keys.");
+  }
+
+  const nodes = createDOMNodes({
+    children: descriptor.children,
+    props: stripKeyProp(descriptor.props),
+    tag: descriptor.tag
+  });
+  const anchor = document.createComment("shadow-keyed");
+
+  return {
+    anchor,
+    dispose: () => {
+      disposeNodes(nodes);
+      disposeNode(anchor);
+
+      if (anchor.parentNode !== null) {
+        anchor.parentNode.removeChild(anchor);
+      }
+    },
+    key,
+    nodes
+  };
 }
 
 function createDOMNodes(value: Renderable): Node[] {
@@ -209,6 +333,11 @@ function createDOMNodes(value: Renderable): Node[] {
 
   return [];
 }
+
+configureKeyedReconciler({
+  createKeyedNode,
+  insertNodes
+});
 
 export function createDOMNode(value: Renderable): Node {
   const nodes = createDOMNodes(value);
