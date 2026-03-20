@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Source maps from compiler transforms
 - Production RPC server (`dist/server.mjs`)
 - Configurable effect error handling and runtime `ErrorBoundary`
+- Package publishing metadata and CommonJS exports
 - GitHub Actions CI/CD workflows
 
 ### Fixed
