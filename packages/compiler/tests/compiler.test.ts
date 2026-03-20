@@ -74,6 +74,10 @@ describe("@shadowjs/compiler", () => {
     expect(source.length).toBeGreaterThan(0);
     expect(source).toContain('"posts": "/abs/posts.server.js"');
     expect(source).toContain("/__rpc/");
+    expect(source).toContain("const STATIC_DIR = process.env.STATIC_DIR");
+    expect(source).toContain('join(STATIC_DIR, "index.html")');
+    expect(source).toContain('".html": "text/html"');
+    expect(source).toContain('".css": "text/css"');
     expect(() => parse(source, { sourceType: "module" })).not.toThrow();
   });
 });

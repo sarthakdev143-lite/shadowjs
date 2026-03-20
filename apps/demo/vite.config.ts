@@ -7,6 +7,9 @@ import { shadowjs } from "../../packages/compiler/src/index";
 const workspaceRoot = fileURLToPath(new URL("../../", import.meta.url));
 
 export default defineConfig({
+  build: {
+    outDir: "dist/client"
+  },
   plugins: [shadowjs()],
   resolve: {
     alias: {
