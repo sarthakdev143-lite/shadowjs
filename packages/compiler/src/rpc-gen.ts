@@ -33,7 +33,7 @@ export function generateRPCStub(serverImport: ServerImport): string {
     "  });",
     "",
     "  if (!response.ok) {",
-    `    throw new Error("MurkJS RPC ${localName} failed.");`,
+    `    throw new Error("ShadeJS RPC ${localName} failed.");`,
     "  }",
     "",
     `  return (await response.json()) as Awaited<ReturnType<${aliasName}>>;`,

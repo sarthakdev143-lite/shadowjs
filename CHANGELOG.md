@@ -10,12 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-03-21
 
 ### Added
-- Single-package public entrypoint via `murkjs`
-- `murkjs/compiler` subpath export for the Vite plugin
+- Single-package public entrypoint via `shadejs`
+- `shadejs/compiler` subpath export for the Vite plugin
 
 ### Changed
-- Demo app and README now use `murkjs` as the default user-facing import surface
-- Workspace root package renamed to `murkjs-workspace` to free the public `murkjs` package name
+- Demo app and README now use `shadejs` as the default user-facing import surface
+- Workspace root package renamed to `shadejs-workspace` to free the public `shadejs` package name
 
 ## [0.2.0] - 2026-03-20
 
@@ -52,3 +52,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial implementation: core signals, runtime, state, compiler
 - Working demo app
 - Static documentation page
+
+

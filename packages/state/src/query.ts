@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, type Accessor } from "@murkjs/core";
+import { createSignal, onCleanup, type Accessor } from "@shadejs/core";
 
 export interface QueryState<T> {
   data: T | null;

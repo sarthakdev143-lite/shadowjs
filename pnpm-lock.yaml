@@ -32,10 +32,10 @@ importers:
 
   apps/benchmark:
     dependencies:
-      '@murkjs/core':
+      '@shadejs/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@murkjs/runtime':
+      '@shadejs/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
     devDependencies:
@@ -48,9 +48,9 @@ importers:
 
   apps/demo:
     dependencies:
-      murkjs:
+      shadejs:
         specifier: workspace:*
-        version: link:../../packages/murkjs
+        version: link:../../packages/shadejs
     devDependencies:
       vite:
         specifier: ^5.4.0
@@ -76,30 +76,30 @@ importers:
 
   packages/core: {}
 
-  packages/murkjs:
+  packages/runtime:
     dependencies:
-      '@murkjs/compiler':
-        specifier: workspace:*
-        version: link:../compiler
-      '@murkjs/core':
+      '@shadejs/core':
         specifier: workspace:*
         version: link:../core
-      '@murkjs/runtime':
+
+  packages/shadejs:
+    dependencies:
+      '@shadejs/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@shadejs/core':
+        specifier: workspace:*
+        version: link:../core
+      '@shadejs/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@murkjs/state':
+      '@shadejs/state':
         specifier: workspace:*
         version: link:../state
 
-  packages/runtime:
-    dependencies:
-      '@murkjs/core':
-        specifier: workspace:*
-        version: link:../core
-
   packages/state:
     dependencies:
-      '@murkjs/core':
+      '@shadejs/core':
         specifier: workspace:*
         version: link:../core
 

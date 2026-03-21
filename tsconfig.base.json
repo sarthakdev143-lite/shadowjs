@@ -6,12 +6,12 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "murkjs": ["packages/murkjs/src/index.ts"],
-      "murkjs/compiler": ["packages/murkjs/src/compiler.ts"],
-      "@murkjs/compiler": ["packages/compiler/src/index.ts"],
-      "@murkjs/core": ["packages/core/src/index.ts"],
-      "@murkjs/runtime": ["packages/runtime/src/index.ts"],
-      "@murkjs/state": ["packages/state/src/index.ts"]
+      "shadejs": ["packages/shadejs/src/index.ts"],
+      "shadejs/compiler": ["packages/shadejs/src/compiler.ts"],
+      "@shadejs/compiler": ["packages/compiler/src/index.ts"],
+      "@shadejs/core": ["packages/core/src/index.ts"],
+      "@shadejs/runtime": ["packages/runtime/src/index.ts"],
+      "@shadejs/state": ["packages/state/src/index.ts"]
     },
     "jsx": "react",
     "jsxFactory": "h",
@@ -20,3 +20,4 @@
     "skipLibCheck": true
   }
 }
+

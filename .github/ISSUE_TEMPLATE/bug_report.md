@@ -4,7 +4,7 @@ about: Something is broken
 ---
 
 **Package**
-<!-- e.g. @murkjs/core -->
+<!-- e.g. @shadejs/core -->
 
 **MurkJS version**
 

@@ -24,11 +24,11 @@ afterEach(() => {
   flushEffects();
   flushMountCallbacks();
   setEffectErrorHandler((error) => {
-    console.error("[MurkJS] Uncaught effect error:", error);
+    console.error("[ShadeJS] Uncaught effect error:", error);
   });
 });
 
-describe("@murkjs/core", () => {
+describe("@shadejs/core", () => {
   it("reads and writes signals", () => {
     const [count, setCount] = createSignal(0);
 

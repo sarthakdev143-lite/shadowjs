@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createServer, type ViteDevServer } from "vite";
 import { fileURLToPath } from "node:url";
 
-import { murkjs } from "../src/plugin";
+import { shadejs } from "../src/plugin";
 
 describe("RPC integration", () => {
   let port: number;
@@ -12,13 +12,13 @@ describe("RPC integration", () => {
     const workspaceRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
     server = await createServer({
-      plugins: [murkjs()],
+      plugins: [shadejs()],
       resolve: {
         alias: {
-          murkjs: fileURLToPath(new URL("../../murkjs/src/index.ts", import.meta.url)),
-          "@murkjs/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
-          "@murkjs/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
-          "@murkjs/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))
+          shadejs: fileURLToPath(new URL("../../shadejs/src/index.ts", import.meta.url)),
+          "@shadejs/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
+          "@shadejs/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
+          "@shadejs/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))
         }
       },
       root: fileURLToPath(new URL("../../../apps/demo", import.meta.url)),
@@ -61,3 +61,4 @@ describe("RPC integration", () => {
     expect(response.status).toBe(404);
   });
 }, 60_000);
+

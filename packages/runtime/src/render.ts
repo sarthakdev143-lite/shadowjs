@@ -1,4 +1,4 @@
-import { flushMountCallbacks, withCleanupScope } from "@murkjs/core";
+import { flushMountCallbacks, withCleanupScope } from "@shadejs/core";
 
 import type { Renderable } from "./jsx";
 import { createDOMNode, disposeNode } from "./dom";

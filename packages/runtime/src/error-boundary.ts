@@ -1,4 +1,4 @@
-import { createSignal, pushErrorHandler } from "@murkjs/core";
+import { createSignal, pushErrorHandler } from "@shadejs/core";
 
 import type { Props, Renderable } from "./jsx";
 

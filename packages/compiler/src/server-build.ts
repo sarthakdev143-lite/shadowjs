@@ -64,7 +64,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method !== "POST") {
-    writeJson(res, 405, { error: "MurkJS RPC only supports POST." })
+    writeJson(res, 405, { error: "ShadeJS RPC only supports POST." })
     return
   }
 
@@ -100,7 +100,7 @@ const server = createServer(async (req, res) => {
 
 const port = process.env.PORT ?? 3000
 server.listen(port, () => {
-  console.log("MurkJS RPC server listening on port " + port)
+  console.log("ShadeJS RPC server listening on port " + port)
 })
 `.trim();
 }

@@ -1,4 +1,4 @@
-# MurkJS — Git & CI/CD Standards
+# ShadeJS — Git & CI/CD Standards
 
 This file is an addendum to PRODUCTION_ROADMAP.md.
 Apply everything here before starting Phase 1. This is not optional.
@@ -231,7 +231,7 @@ Settings to apply in GitHub repo settings:
 
 ## Semantic Versioning
 
-MurkJS follows semver: `MAJOR.MINOR.PATCH`
+ShadeJS follows semver: `MAJOR.MINOR.PATCH`
 
 - `PATCH` (0.0.x) — bug fixes, no API changes
 - `MINOR` (0.x.0) — new features, backwards compatible
@@ -331,9 +331,9 @@ about: Something is broken
 ---
 
 **Package**
-<!-- e.g. @murkjs/core -->
+<!-- e.g. @shadejs/core -->
 
-**MurkJS version**
+**ShadeJS version**
 
 **Description**
 <!-- What happened vs what you expected -->
@@ -416,3 +416,4 @@ Repeat this branch → commit → PR → merge cycle for every phase in PRODUCTI
 .editorconfig
 CHANGELOG.md
 ```
+

@@ -1,4 +1,4 @@
-import { createSignal, type Accessor, type Setter } from "@murkjs/core";
+import { createSignal, type Accessor, type Setter } from "@shadejs/core";
 
 interface SignalEntry<T> {
   read: Accessor<T>;

@@ -1,5 +1,5 @@
 {
-  "name": "murkjs",
+  "name": "shadejs",
   "version": "0.3.0",
   "license": "MIT",
   "type": "module",
@@ -10,6 +10,9 @@
     "dist",
     "src"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -27,9 +30,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@murkjs/compiler": "workspace:*",
-    "@murkjs/core": "workspace:*",
-    "@murkjs/runtime": "workspace:*",
-    "@murkjs/state": "workspace:*"
+    "@shadejs/compiler": "workspace:*",
+    "@shadejs/core": "workspace:*",
+    "@shadejs/runtime": "workspace:*",
+    "@shadejs/state": "workspace:*"
   }
 }

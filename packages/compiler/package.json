@@ -1,5 +1,5 @@
 {
-  "name": "@murkjs/compiler",
+  "name": "@shadejs/compiler",
   "version": "0.3.0",
   "license": "MIT",
   "type": "module",

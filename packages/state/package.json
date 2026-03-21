@@ -1,5 +1,5 @@
 {
-  "name": "@murkjs/state",
+  "name": "@shadejs/state",
   "version": "0.3.0",
   "license": "MIT",
   "type": "module",
@@ -23,6 +23,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@murkjs/core": "workspace:*"
+    "@shadejs/core": "workspace:*"
   }
 }

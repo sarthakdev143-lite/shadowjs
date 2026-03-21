@@ -48,7 +48,7 @@ export function analyzeServerImports(source: string): ServerImport[] {
 
       for (const specifier of path.node.specifiers) {
         if (isImportNamespaceSpecifier(specifier)) {
-          throw new Error("MurkJS v1 does not support namespace imports from .server files.");
+          throw new Error("ShadeJS v1 does not support namespace imports from .server files.");
         }
 
         imports.push({
