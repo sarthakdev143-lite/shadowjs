@@ -124,7 +124,7 @@ describe("@shadejs/state", () => {
     const result = await mutation.mutate("shadejs");
 
     expect(createPost).toHaveBeenCalledWith("shadejs");
-    expect(result).toBe("MURKJS");
+    expect(result).toBe("SHADEJS");
   });
 
   it("createMutation invalidation triggers a query refetch", async () => {
