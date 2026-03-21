@@ -1,80 +1,158 @@
-# ShadeJS — Git & CI/CD Standards
+# ShadeJS — Universal Git & CI/CD Standards
 
-This file is an addendum to PRODUCTION_ROADMAP.md.
-Apply everything here before starting Phase 1. This is not optional.
-
----
-
-## Branching Strategy (GitHub Flow)
-
-```
-main          ← always deployable, protected
-  └── phase/1-effect-disposal
-  └── phase/2-batch-api
-  └── phase/3-mutation-loading
-  └── phase/4-query-dedup
-  └── phase/5-source-maps
-  └── phase/6-production-server
-  └── phase/7-error-handling
-  └── phase/8-publishing-config
-  └── phase/9-ci
-  └── phase/10-readme
-  └── phase/11-integration-tests
-```
-
-Rules:
-- Never commit directly to `main`
-- Every phase gets its own branch: `phase/N-short-description`
-- Branch is merged to `main` only after all tests pass on that branch
-- Delete the branch after merge
+This file is permanent. It governs every contribution to this repository forever.
+It is not tied to any specific roadmap. It applies to all phases, all packages, all changes.
+Read it before writing a single line of code. Follow it without exception.
 
 ---
 
-## Commit Message Convention (Conventional Commits)
+## 1. Branching Strategy
 
-Format:
+This project uses **GitHub Flow** — one long-lived branch, short-lived feature branches.
+
+```
+main                        ← always deployable, always green, always protected
+  └── phase/N-description   ← roadmap phases
+  └── fix/short-description ← bug fixes
+  └── feat/short-description ← features outside a roadmap
+  └── chore/description     ← config, deps, tooling
+  └── docs/description      ← documentation only
+```
+
+### Rules
+
+- **Never commit directly to `main`.** No exceptions. Not even one-line fixes.
+- Every unit of work gets its own branch, no matter how small.
+- Branch name must match the type of change: `fix/`, `feat/`, `phase/`, `chore/`, `docs/`.
+- Branch is merged to `main` only after CI passes and all checklist items are complete.
+- Delete the branch immediately after merge. Do not let stale branches accumulate.
+- Branch names are lowercase, hyphen-separated, no special characters.
+
+### Branch naming examples
+
+```
+phase/19-context-api
+fix/query-registry-leak
+feat/devtools-signal-inspector
+chore/update-vitest-to-v3
+docs/router-usage-guide
+```
+
+---
+
+## 2. Commit Message Convention
+
+This project follows **Conventional Commits** (https://www.conventionalcommits.org).
+
+### Format
+
 ```
 <type>(<scope>): <short description>
 
-[optional body]
+[optional body — explain WHY, not WHAT]
 
-[optional footer]
+[optional footer — breaking changes, issue references]
 ```
 
-Types:
-- `feat` — new feature or capability
-- `fix` — bug fix
-- `refactor` — code change that neither fixes a bug nor adds a feature
-- `test` — adding or updating tests
-- `docs` — documentation only
-- `chore` — build process, CI, config changes
-- `perf` — performance improvement
+### Types
 
-Scopes: `core`, `runtime`, `state`, `compiler`, `demo`, `docs`, `ci`, `repo`
+| Type | When to use |
+|---|---|
+| `feat` | New feature or capability added |
+| `fix` | Bug fix |
+| `refactor` | Code change with no behavior change |
+| `test` | Adding or updating tests only |
+| `docs` | Documentation only |
+| `chore` | Build, CI, config, dependency changes |
+| `perf` | Performance improvement |
+| `revert` | Reverting a previous commit |
 
-Examples:
+### Scopes
+
+| Scope | Package / area |
+|---|---|
+| `core` | `@sarthakdev143/core` |
+| `runtime` | `@sarthakdev143/runtime` |
+| `state` | `@sarthakdev143/state` |
+| `compiler` | `@sarthakdev143/compiler` |
+| `router` | `@sarthakdev143/router` |
+| `cli` | `create-shadejs` |
+| `demo` | `apps/demo` |
+| `docs` | `apps/docs` or documentation files |
+| `ci` | GitHub Actions workflows |
+| `repo` | Root-level config, monorepo setup |
+
+### Rules
+
+- Subject line: max 72 characters
+- Imperative mood: `add` not `added`, `fix` not `fixed`, `remove` not `removed`
+- No period at end of subject line
+- Body explains WHY — the diff shows what changed
+- One logical change per commit. Do not bundle unrelated changes.
+- Breaking changes must include `BREAKING CHANGE:` in the footer
+
+### Examples
+
 ```
 feat(core): add dispose() return value to createEffect
-fix(runtime): register effect disposers on anchor nodes
-test(core): add disposal and batch tests
-chore(ci): add GitHub Actions workflow
-docs(readme): rewrite with architecture and quickstart
-```
 
-Rules:
-- Subject line max 72 characters
-- Use imperative mood: "add" not "added", "fix" not "fixed"
-- No period at end of subject line
-- Body explains WHY not WHAT (the diff shows what)
-- One logical change per commit — do not bundle unrelated changes
+Effects need to be stoppable to avoid memory leaks in dynamic
+component trees. Without disposal, effects survive component
+unmounting and continue reacting to stale data.
+
+feat(router): implement client-side navigation with popstate
+
+fix(state): deduplicate in-flight queries by key
+
+Two simultaneous createQuery calls with the same key were
+firing two network requests. They now share one Promise.
+
+test(compiler): add RPC integration coverage
+
+chore(ci): add concurrency cancellation to CI workflow
+
+BREAKING CHANGE: createMutation now returns { mutate, pending, error }
+instead of a plain async function. Update all call sites.
+```
 
 ---
 
-## GitHub Actions Workflows
+## 3. Pull Request Standards
 
-Create all three files below.
+Every branch is merged via PR. No direct merges to main.
 
-### `.github/workflows/ci.yml` — runs on every push and PR
+### PR title format
+
+Same as commit message subject line:
+```
+feat(core): add context API
+fix(runtime): dispose anchor node effects on replacement
+chore(ci): update pnpm to v10
+```
+
+PR titles are validated automatically by `.github/workflows/pr-check.yml`.
+
+### PR size
+
+- Keep PRs focused. One phase = one PR minimum.
+- If a phase is large, split it into logical sub-PRs.
+- PRs over 800 changed lines should be split unless genuinely impossible.
+
+### Merge strategy
+
+- **Squash and Merge** for all feature/fix/phase branches — keeps main history linear and clean.
+- **Merge Commit** only for release PRs where individual commits must be preserved.
+- Never Rebase and Merge — rewrites history, breaks git bisect.
+
+---
+
+## 4. GitHub Actions Workflows
+
+Three permanent workflow files. Never modify without a `chore(ci):` PR.
+
+### `.github/workflows/ci.yml`
+
+Runs on every push to every branch and every PR to main.
 
 ```yaml
 name: CI
@@ -91,7 +169,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Typecheck, Test, Build
+    name: Typecheck · Test · Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -118,7 +196,9 @@ jobs:
         run: pnpm build
 ```
 
-### `.github/workflows/release.yml` — runs on version tags
+### `.github/workflows/release.yml`
+
+Runs when a `v*.*.*` tag is pushed. Publishes all packages to npm.
 
 ```yaml
 name: Release
@@ -171,7 +251,9 @@ jobs:
           generate_release_notes: true
 ```
 
-### `.github/workflows/pr-check.yml` — validates PR titles
+### `.github/workflows/pr-check.yml`
+
+Validates PR title on every PR open/edit.
 
 ```yaml
 name: PR Title Check
@@ -196,11 +278,14 @@ jobs:
             docs
             chore
             perf
+            revert
           scopes: |
             core
             runtime
             state
             compiler
+            router
+            cli
             demo
             docs
             ci
@@ -209,211 +294,171 @@ jobs:
 
 ---
 
-## Branch Protection Rules
+## 5. Branch Protection
 
-Create a file `.github/branch-protection.md` documenting the rules to set manually in GitHub Settings → Branches → main:
+Set manually in GitHub: Repository → Settings → Branches → Add rule → `main`
 
-```markdown
-# Branch Protection — main
-
-Settings to apply in GitHub repo settings:
-
-- Require a pull request before merging: YES
-- Require status checks to pass before merging: YES
-  - Required checks: CI / Typecheck, Test, Build
-- Require branches to be up to date before merging: YES
-- Do not allow bypassing the above settings: YES
-- Allow force pushes: NO
-- Allow deletions: NO
+```
+✅ Require a pull request before merging
+✅ Require status checks to pass before merging
+     Required: CI / Typecheck · Test · Build
+✅ Require branches to be up to date before merging
+✅ Do not allow bypassing the above settings
+❌ Allow force pushes
+❌ Allow deletions
 ```
 
 ---
 
-## Semantic Versioning
+## 6. Versioning
 
-ShadeJS follows semver: `MAJOR.MINOR.PATCH`
+Follows **Semantic Versioning**: `MAJOR.MINOR.PATCH`
 
-- `PATCH` (0.0.x) — bug fixes, no API changes
-- `MINOR` (0.x.0) — new features, backwards compatible
-- `MAJOR` (x.0.0) — breaking API changes
+- `PATCH` — bug fixes, no API change
+- `MINOR` — new features, backwards compatible
+- `MAJOR` — breaking API changes
 
-Current version: `0.1.0` after Phase 11 completes.
+### Lockstep rule
 
-Version bump process:
+All packages always publish at the same version. When one bumps, all bump.
+
+### Release process
+
 ```bash
-# patch
-pnpm -r exec npm version patch
-git tag v0.1.1
-git push --tags
+# 1. Create release branch
+git checkout -b chore/release-vX.Y.Z
 
-# minor
-pnpm -r exec npm version minor
-git tag v0.2.0
-git push --tags
+# 2. Bump all packages
+pnpm -r exec npm version minor   # or patch / major
+
+# 3. Update CHANGELOG.md — move [Unreleased] to new version with today's date
+
+# 4. Commit and PR
+git add -A
+git commit -m "chore(repo): bump version to vX.Y.Z"
+# open PR → merge
+
+# 5. Tag from main
+git checkout main && git pull
+git tag vX.Y.Z
+git push origin vX.Y.Z
+# release.yml fires automatically
 ```
-
-All four packages (`core`, `runtime`, `state`, `compiler`) are versioned in lockstep — they always publish at the same version number.
 
 ---
 
-## CHANGELOG
+## 7. CHANGELOG
 
-**New file: `CHANGELOG.md`** at repo root.
-
-Format follows Keep a Changelog (https://keepachangelog.com):
+`CHANGELOG.md` at repo root. Updated in every PR that changes behavior.
 
 ```markdown
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [Unreleased]
 
 ### Added
-- Effect disposal via `createEffect` return value
-- `batch()` API for explicit update batching
-- `pending` and `error` signals on `createMutation`
-- In-flight request deduplication in `createQuery`
-- Source maps from compiler transforms
-- Production RPC server (`dist/server.mjs`)
-- GitHub Actions CI/CD workflows
-
 ### Fixed
-- Effect memory leak — effects now disposable
-- queryRegistry never shrinking — registry entries removed on disposal
+### Changed
+### Removed
+### Breaking Changes
 
-## [0.0.1] - 2025-03-19
-
+## [0.2.0] - 2026-03-21
 ### Added
-- Initial implementation: core signals, runtime, state, compiler
-- Working demo app
-- Static documentation page
+- ...
 ```
 
-Update CHANGELOG.md at the end of every phase with what changed.
+### Rules
+
+- Every `feat`, `fix`, `perf`, or breaking change PR must update `[Unreleased]`.
+- `chore`, `test`, `docs`, `ci` PRs do not need a CHANGELOG entry.
+- Be specific: "Fix queryRegistry not releasing entries on disposal" not "Fix bug".
+- On release: rename `[Unreleased]` → `[X.Y.Z] - YYYY-MM-DD`, add new empty `[Unreleased]` above.
 
 ---
 
-## `.github/PULL_REQUEST_TEMPLATE.md`
+## 8. Code Standards
 
-```markdown
-## What does this PR do?
+### TypeScript
 
-<!-- One sentence description -->
+- `"strict": true` everywhere. Non-negotiable.
+- Zero `any`. Use generics or `unknown`.
+- No `@ts-ignore` without a comment explaining why.
+- All exported functions have explicit return types.
 
-## Phase
+### Testing
 
-<!-- Which phase from PRODUCTION_ROADMAP.md does this implement? -->
-Phase N — 
+- Every new behavior gets a test. No exceptions.
+- Tests live in `packages/<package>/tests/`.
+- Test names are full sentences: `"createEffect re-runs when dependency changes"`.
+- Tests are independent. No shared mutable state between tests. Reset in `beforeEach`.
+- `pnpm test` must pass with zero failures before any PR is opened.
 
-## Checklist
+### File hygiene
 
-- [ ] `pnpm test` passes
-- [ ] `pnpm typecheck` passes  
-- [ ] `pnpm build` passes
-- [ ] `pnpm dev` (demo) still works
-- [ ] New tests added for new behavior
-- [ ] CHANGELOG.md updated
+- No `console.log` in source files. Use proper error handlers.
+- No commented-out code committed. Delete it or don't commit it.
+- No dead imports.
+- One concept per file.
+- Only `index.ts` is the public export surface. Never import from internal files across packages.
+
+### Dependencies
+
+- Add with `pnpm add <pkg> --filter <package>`. Never edit `package.json` manually for deps.
+- Core packages have zero runtime dependencies by design. Justify any addition.
+- Dev dependencies go in `devDependencies`. Never mix.
+
+---
+
+## 9. Pre-merge Checklist
+
+Verify all of these before opening any PR:
+
+```
+- [ ] pnpm test          → zero failures
+- [ ] pnpm typecheck     → zero errors
+- [ ] pnpm build         → all packages build cleanly
+- [ ] pnpm dev           → demo app starts and functions correctly
+- [ ] New behavior has tests
+- [ ] CHANGELOG.md updated (if behavior changed)
 - [ ] Commit messages follow Conventional Commits
+- [ ] Branch is up to date with main
+- [ ] No console.log in source files
+- [ ] No commented-out code in source files
+- [ ] No `any` introduced
+- [ ] No new runtime dependencies added without justification
 ```
 
 ---
 
-## `.github/ISSUE_TEMPLATE/bug_report.md`
+## 10. What Never Goes in This Repo
 
-```markdown
----
-name: Bug report
-about: Something is broken
----
-
-**Package**
-<!-- e.g. @shadejs/core -->
-
-**ShadeJS version**
-
-**Description**
-<!-- What happened vs what you expected -->
-
-**Minimal reproduction**
-
-**Error output**
-```
+- Secrets, tokens, API keys — use GitHub Secrets for CI, `.env` for local
+- Built output (`dist/`) — gitignored
+- `node_modules/` — gitignored
+- OS files (`.DS_Store`, `Thumbs.db`) — covered by `.gitignore`
+- Unresolved lock file conflicts — always resolve `pnpm-lock.yaml` properly
+- Direct pushes to `main`
 
 ---
 
-## `.editorconfig`
+## 11. The Loop
 
-Create at repo root:
-
-```ini
-root = true
-
-[*]
-charset = utf-8
-end_of_line = lf
-indent_style = space
-indent_size = 2
-insert_final_newline = true
-trim_trailing_whitespace = true
-
-[*.md]
-trim_trailing_whitespace = false
-```
-
----
-
-## `.github/CODEOWNERS`
+Every unit of work — bug fix, feature, phase, chore — follows this loop exactly.
 
 ```
-* @YOUR_GITHUB_USERNAME
+1.  git checkout main && git pull
+2.  git checkout -b <type>/<description>
+3.  Write code
+4.  Write tests
+5.  pnpm test && pnpm typecheck && pnpm build && pnpm dev
+6.  Update CHANGELOG.md if behavior changed
+7.  git add -A && git commit -m "<type>(<scope>): <description>"
+8.  git push origin <branch>
+9.  Open PR with filled template
+10. CI passes
+11. Squash and merge
+12. git branch -d <branch>
+13. Back to step 1
 ```
 
----
-
-## Execution Order for Git/CI Setup
-
-Do this BEFORE Phase 1 of PRODUCTION_ROADMAP.md:
-
-```bash
-# 1. Create and switch to first branch
-git checkout -b phase/0-git-cicd-setup
-
-# 2. Create all files listed in this document
-# 3. Stage and commit
-git add .
-git commit -m "chore(ci): add git workflow, ci/cd, branch protection, changelog"
-
-# 4. Push and open PR to main
-git push origin phase/0-git-cicd-setup
-# merge via GitHub PR UI, not git merge
-
-# 5. After merge, pull main and create next branch
-git checkout main && git pull
-git checkout -b phase/1-effect-disposal
-```
-
-Repeat this branch → commit → PR → merge cycle for every phase in PRODUCTION_ROADMAP.md.
-
----
-
-## Summary of files to create
-
-```
-.github/
-  workflows/
-    ci.yml
-    release.yml
-    pr-check.yml
-  PULL_REQUEST_TEMPLATE.md
-  ISSUE_TEMPLATE/
-    bug_report.md
-  branch-protection.md
-  CODEOWNERS
-.editorconfig
-CHANGELOG.md
-```
-
+No shortcuts. No exceptions.
