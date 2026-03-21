@@ -4,7 +4,8 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 
 import type { Plugin, ViteDevServer } from "vite";
 
-import { analyzeServerImports } from "./analyzer";
+import { analyzeServerImports, extractExportedFunctions } from "./analyzer";
+import { generateHMRBlock } from "./hmr";
 import { getRPCRoutePath } from "./rpc-gen";
 import { generateProductionServer } from "./server-build";
 import { transformServerImports } from "./transform";
@@ -116,6 +117,7 @@ function installRpcMiddleware(server: ViteDevServer, routeRegistry: Map<string, 
 }
 
 export function shadejs(): Plugin {
+  let command: "build" | "serve" = "build";
   const routeRegistry = new Map<string, string>();
 
   return {
@@ -127,6 +129,9 @@ export function shadejs(): Plugin {
       const outDir = resolve(process.cwd(), "dist");
       mkdirSync(outDir, { recursive: true });
       writeFileSync(resolve(outDir, "server.mjs"), generateProductionServer(routeRegistry), "utf8");
+    },
+    configResolved(config) {
+      command = config.command;
     },
     configureServer(server) {
       installRpcMiddleware(server, routeRegistry);
@@ -149,12 +154,17 @@ export function shadejs(): Plugin {
       }
 
       const transformed = transformServerImports(code);
+      const nextCode = transformed?.code ?? code;
+      const hmrBlock = command === "serve" ? generateHMRBlock(extractExportedFunctions(nextCode)) : "";
 
-      if (transformed === null) {
+      if (transformed === null && hmrBlock.length === 0) {
         return null;
       }
 
-      return transformed;
+      return {
+        code: `${nextCode}${hmrBlock.length > 0 ? `\n${hmrBlock.trimStart()}` : ""}`,
+        map: transformed?.map ?? null
+      };
     }
   };
 }

@@ -1,10 +1,18 @@
 import { parse } from "@babel/parser";
 import { describe, expect, it } from "vitest";
 
-import { generateProductionServer } from "../src/index";
+import { extractExportedFunctions, generateHMRBlock, generateProductionServer } from "../src/index";
 import { shadejs } from "../src/plugin";
 import { generateRPCStub } from "../src/rpc-gen";
 import { transformServerImports } from "../src/transform";
+
+function getConfigResolvedHook(plugin: ReturnType<typeof shadejs>): ((config: { command: "build" | "serve" }) => void) | undefined {
+  if (typeof plugin.configResolved === "function") {
+    return plugin.configResolved as unknown as (config: { command: "build" | "serve" }) => void;
+  }
+
+  return plugin.configResolved?.handler as unknown as ((config: { command: "build" | "serve" }) => void) | undefined;
+}
 
 describe("@sarthakdev143/compiler", () => {
   it("passes through files without .server imports", () => {
@@ -66,6 +74,54 @@ describe("@sarthakdev143/compiler", () => {
     const result = transformHook?.("export async function getPosts() {}", "/src/posts.server.ts");
 
     expect(result).toBeNull();
+  });
+
+  it("generates an HMR block for exported components", () => {
+    const block = generateHMRBlock(["Feed", "Counter"]);
+
+    expect(block).toContain('window.__shadejs_registry__?.has("Feed")');
+    expect(block).toContain('window.__shadejs_registry__?.has("Counter")');
+    expect(block).toContain("import.meta.hot.accept");
+  });
+
+  it("extracts exported function components from source", () => {
+    const source = [
+      "export function Feed() {",
+      '  return "feed";',
+      "}",
+      "export const Counter = () => 1;",
+      "const Hidden = () => 2;"
+    ].join("\n");
+
+    expect(extractExportedFunctions(source)).toEqual(["Feed", "Counter"]);
+  });
+
+  it("injects HMR only during serve mode", () => {
+    const source = 'export function Feed() { return "feed"; }';
+    const servePlugin = shadejs();
+    const serveConfigResolved = getConfigResolvedHook(servePlugin);
+    const serveTransform =
+      typeof servePlugin.transform === "function"
+        ? (servePlugin.transform as unknown as (code: string, id: string) => { code: string } | null)
+        : (servePlugin.transform?.handler as unknown as ((code: string, id: string) => { code: string } | null) | undefined);
+
+    serveConfigResolved?.({ command: "serve" });
+    const serveResult = serveTransform?.(source, "/src/feed.tsx");
+
+    expect(serveResult).not.toBeNull();
+    expect(serveResult?.code).toContain("import.meta.hot");
+
+    const buildPlugin = shadejs();
+    const buildConfigResolved = getConfigResolvedHook(buildPlugin);
+    const buildTransform =
+      typeof buildPlugin.transform === "function"
+        ? (buildPlugin.transform as unknown as (code: string, id: string) => { code: string } | null)
+        : (buildPlugin.transform?.handler as unknown as ((code: string, id: string) => { code: string } | null) | undefined);
+
+    buildConfigResolved?.({ command: "build" });
+    const buildResult = buildTransform?.(source, "/src/feed.tsx");
+
+    expect(buildResult).toBeNull();
   });
 
   it("generates a production RPC server source file", () => {

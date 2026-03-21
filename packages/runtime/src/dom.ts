@@ -1,6 +1,7 @@
 import { createEffect } from "@sarthakdev143/core";
 
 import {
+  type Component,
   Fragment,
   renderWithProvider,
   type JSXDescriptor,
@@ -9,6 +10,7 @@ import {
   type ReactiveChild,
   type Renderable
 } from "./jsx";
+import { registerComponent } from "./hmr";
 import { configureKeyedReconciler, reconcileKeyedList, type KeyedNode } from "./reconciler";
 
 type DOMPropertyTarget = Element & Record<string, unknown>;
@@ -283,26 +285,48 @@ function createReactiveNodes(accessor: ReactiveChild): Node[] {
   }
 }
 
+function renderComponentValue(
+  component: Component<Record<string, unknown>>,
+  props: Props,
+  children: Renderable[]
+): Renderable {
+  return renderWithProvider(component, props, children, () =>
+    component({
+      ...props,
+      children
+    })
+  );
+}
+
+function createComponentNodes(
+  component: Component<Record<string, unknown>>,
+  props: Props,
+  children: Renderable[]
+): Node[] {
+  const anchor = document.createComment("shade-component");
+  let currentComponent = component;
+  let currentState = createReactiveState(renderComponentValue(component, props, children));
+
+  if (component.name.length > 0) {
+    registerDisposer(
+      anchor,
+      registerComponent(component.name, (newFn) => {
+        currentComponent = newFn as Component<Record<string, unknown>>;
+        currentState = updateReactiveNodes(anchor, currentState, renderComponentValue(currentComponent, props, children));
+      })
+    );
+  }
+
+  return [...getStateNodes(currentState), anchor];
+}
+
 function createElementNodes(descriptor: JSXDescriptor): Node[] {
   if (descriptor.tag === Fragment) {
     return descriptor.children.flatMap((child) => createDOMNodes(child));
   }
 
   if (typeof descriptor.tag === "function") {
-    const component = descriptor.tag;
-
-    return renderWithProvider(
-      component,
-      stripKeyProp(descriptor.props),
-      descriptor.children,
-      () =>
-        createDOMNodes(
-          component({
-            ...stripKeyProp(descriptor.props),
-            children: descriptor.children
-          })
-        )
-    );
+    return createComponentNodes(descriptor.tag, stripKeyProp(descriptor.props), descriptor.children);
   }
 
   const element = document.createElement(descriptor.tag);

@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Context API helpers via `createContext`, `provideContext`, and `useContext`
 - Runtime `createProvider()` support for provider-backed component trees
 - Typed intrinsic element props for `h()` plus compile-time JSX prop coverage
+- Dev-mode HMR export detection and component swap hooks for Vite
 
 ### Changed
 - Demo app now uses context for theme state instead of local prop wiring
 - Runtime package now exports `jsx-types` declarations for downstream tooling
+- Exported runtime components can now be hot-swapped in place during local development
 
 ## [0.3.0] - 2026-03-21
 
