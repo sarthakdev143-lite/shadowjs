@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Typed intrinsic element props for `h()` plus compile-time JSX prop coverage
 - Dev-mode HMR export detection and component swap hooks for Vite
 - `@sarthakdev143/router` with route matching, navigation signals, and a client-side `<Link>`
+- `create-shadejs` CLI scaffolder with optional router/demo templates
 
 ### Changed
 - Demo app now uses context for theme state instead of local prop wiring
