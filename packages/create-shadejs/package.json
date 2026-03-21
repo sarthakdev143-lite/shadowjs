@@ -1,0 +1,26 @@
+{
+  "name": "create-shadejs",
+  "version": "0.1.0",
+  "description": "Scaffold a new ShadeJS application",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-shadejs": "./dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm --target node18 && node -e \"const fs=require('node:fs'); const path='dist/index.js'; fs.writeFileSync(path, '#!/usr/bin/env node\\n'+fs.readFileSync(path, 'utf8'));\"",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.0"
+  }
+}
