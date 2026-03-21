@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Runtime `createProvider()` support for provider-backed component trees
 - Typed intrinsic element props for `h()` plus compile-time JSX prop coverage
 - Dev-mode HMR export detection and component swap hooks for Vite
+- `@sarthakdev143/router` with route matching, navigation signals, and a client-side `<Link>`
 
 ### Changed
 - Demo app now uses context for theme state instead of local prop wiring
 - Runtime package now exports `jsx-types` declarations for downstream tooling
 - Exported runtime components can now be hot-swapped in place during local development
+- Demo app now uses a router-driven home/about flow without full-page reloads
 
 ## [0.3.0] - 2026-03-21
 
