@@ -6,6 +6,8 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
+      "murkjs": ["packages/murkjs/src/index.ts"],
+      "murkjs/compiler": ["packages/murkjs/src/compiler.ts"],
       "@murkjs/compiler": ["packages/compiler/src/index.ts"],
       "@murkjs/core": ["packages/core/src/index.ts"],
       "@murkjs/runtime": ["packages/runtime/src/index.ts"],

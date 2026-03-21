@@ -1,6 +1,4 @@
-import { createSignal } from "@murkjs/core";
-import { h } from "@murkjs/runtime";
-import { createMutation, createQuery, createStore } from "@murkjs/state";
+import { createMutation, createQuery, createSignal, createStore, h } from "murkjs";
 
 import { addPost, getPosts } from "./posts.server";
 

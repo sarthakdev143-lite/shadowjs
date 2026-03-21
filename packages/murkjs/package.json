@@ -1,5 +1,5 @@
 {
-  "name": "@murkjs/runtime",
+  "name": "murkjs",
   "version": "0.3.0",
   "license": "MIT",
   "type": "module",
@@ -15,14 +15,21 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./compiler": {
+      "types": "./dist/compiler.d.ts",
+      "import": "./dist/compiler.js",
+      "require": "./dist/compiler.cjs"
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --dts --format esm,cjs",
-    "test": "vitest run",
+    "build": "tsup src/index.ts src/compiler.ts --dts --format esm,cjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@murkjs/core": "workspace:*"
+    "@murkjs/compiler": "workspace:*",
+    "@murkjs/core": "workspace:*",
+    "@murkjs/runtime": "workspace:*",
+    "@murkjs/state": "workspace:*"
   }
 }

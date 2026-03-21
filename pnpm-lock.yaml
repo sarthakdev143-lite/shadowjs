@@ -48,18 +48,9 @@ importers:
 
   apps/demo:
     dependencies:
-      '@murkjs/compiler':
+      murkjs:
         specifier: workspace:*
-        version: link:../../packages/compiler
-      '@murkjs/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@murkjs/runtime':
-        specifier: workspace:*
-        version: link:../../packages/runtime
-      '@murkjs/state':
-        specifier: workspace:*
-        version: link:../../packages/state
+        version: link:../../packages/murkjs
     devDependencies:
       vite:
         specifier: ^5.4.0
@@ -84,6 +75,21 @@ importers:
         version: 5.4.21(@types/node@24.12.0)
 
   packages/core: {}
+
+  packages/murkjs:
+    dependencies:
+      '@murkjs/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@murkjs/core':
+        specifier: workspace:*
+        version: link:../core
+      '@murkjs/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@murkjs/state':
+        specifier: workspace:*
+        version: link:../state
 
   packages/runtime:
     dependencies:
