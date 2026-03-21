@@ -1,4 +1,4 @@
-import { createMutation, createQuery, createSignal, createStore, h } from "shadejs";
+import { createMutation, createQuery, createSignal, createStore, h } from "@sarthakdev143/shadejs";
 
 import { addPost, getPosts } from "./posts.server";
 

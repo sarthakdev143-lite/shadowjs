@@ -13,7 +13,7 @@ export default defineConfig({
   plugins: [shadejs()],
   resolve: {
     alias: {
-      shadejs: fileURLToPath(new URL("../../packages/shadejs/src/index.ts", import.meta.url)),
+      "@sarthakdev143/shadejs": fileURLToPath(new URL("../../packages/shadejs/src/index.ts", import.meta.url)),
       "@sarthakdev143/core": fileURLToPath(new URL("../../packages/core/src/index.ts", import.meta.url)),
       "@sarthakdev143/runtime": fileURLToPath(new URL("../../packages/runtime/src/index.ts", import.meta.url)),
       "@sarthakdev143/state": fileURLToPath(new URL("../../packages/state/src/index.ts", import.meta.url))

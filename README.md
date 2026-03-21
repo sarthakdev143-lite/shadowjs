@@ -7,10 +7,10 @@ ShadeJS is a TypeScript-first experiment in fine-grained UI reactivity, compiler
 For normal use, install the single public package:
 
 ```bash
-npm install shadejs
+npm install @sarthakdev143/shadejs
 ```
 
-Then use the framework APIs from `"shadejs"` and the Vite plugin from `"shadejs/compiler"`.
+Then use the framework APIs from `"@sarthakdev143/shadejs"` and the Vite plugin from `"@sarthakdev143/shadejs/compiler"`.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ pnpm dev
 ### Signals
 
 ```ts
-import { createEffect, createSignal } from "shadejs";
+import { createEffect, createSignal } from "@sarthakdev143/shadejs";
 
 const [count, setCount] = createSignal(0);
 
@@ -61,7 +61,7 @@ setCount((value) => value + 1);
 ### DOM binding
 
 ```ts
-import { createSignal, h, mount } from "shadejs";
+import { createSignal, h, mount } from "@sarthakdev143/shadejs";
 
 const [name, setName] = createSignal("ShadeJS");
 
@@ -78,7 +78,7 @@ mount(
 ### createQuery
 
 ```ts
-import { createQuery } from "shadejs";
+import { createQuery } from "@sarthakdev143/shadejs";
 import { getPosts } from "./posts.server";
 
 const posts = createQuery(getPosts, "posts");
@@ -91,7 +91,7 @@ console.log(posts().error);
 ### createStore
 
 ```ts
-import { createStore } from "shadejs";
+import { createStore } from "@sarthakdev143/shadejs";
 
 const form = createStore({
   draft: "",
@@ -105,7 +105,7 @@ form.open = true;
 ### .server imports
 
 ```ts
-import { createMutation } from "shadejs";
+import { createMutation } from "@sarthakdev143/shadejs";
 import { addPost } from "./posts.server";
 
 const { mutate, pending, error } = createMutation(addPost, {
@@ -122,7 +122,7 @@ The compiler rewrites `.server` imports into client-side fetch stubs that call `
 
 ```ts
 import { defineConfig } from "vite";
-import { shadejs } from "shadejs/compiler";
+import { shadejs } from "@sarthakdev143/shadejs/compiler";
 
 export default defineConfig({
   plugins: [shadejs()]

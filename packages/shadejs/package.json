@@ -1,6 +1,6 @@
 {
-  "name": "shadejs",
-  "version": "0.3.3",
+  "name": "@sarthakdev143/shadejs",
+  "version": "0.3.4",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

@@ -1,4 +1,4 @@
-import { mount } from "shadejs";
+import { mount } from "@sarthakdev143/shadejs";
 
 import { Feed } from "./feed";
 import "./styles.css";

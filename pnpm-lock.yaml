@@ -48,7 +48,7 @@ importers:
 
   apps/demo:
     dependencies:
-      shadejs:
+      '@sarthakdev143/shadejs':
         specifier: workspace:*
         version: link:../../packages/shadejs
     devDependencies:

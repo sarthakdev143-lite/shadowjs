@@ -15,7 +15,7 @@ describe("RPC integration", () => {
       plugins: [shadejs()],
       resolve: {
         alias: {
-          shadejs: fileURLToPath(new URL("../../shadejs/src/index.ts", import.meta.url)),
+          "@sarthakdev143/shadejs": fileURLToPath(new URL("../../shadejs/src/index.ts", import.meta.url)),
           "@sarthakdev143/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
           "@sarthakdev143/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
           "@sarthakdev143/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))

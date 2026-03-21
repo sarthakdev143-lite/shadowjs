@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "shadejs": "workspace:*"
+    "@sarthakdev143/shadejs": "workspace:*"
   },
   "devDependencies": {
     "vite": "^5.4.0"
