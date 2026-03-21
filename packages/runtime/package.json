@@ -1,6 +1,6 @@
 {
-  "name": "@shadejs/runtime",
-  "version": "0.3.2",
+  "name": "@sarthakdev143/runtime",
+  "version": "0.3.3",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -23,6 +23,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shadejs/core": "workspace:*"
+    "@sarthakdev143/core": "workspace:*"
   }
 }

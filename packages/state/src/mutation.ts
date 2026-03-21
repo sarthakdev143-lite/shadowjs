@@ -1,4 +1,4 @@
-import { createSignal, type Accessor } from "@shadejs/core";
+import { createSignal, type Accessor } from "@sarthakdev143/core";
 
 import { invalidateQueryKeys } from "./query";
 

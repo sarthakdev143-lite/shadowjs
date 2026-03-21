@@ -1,4 +1,4 @@
-import { createSignal, pushErrorHandler } from "@shadejs/core";
+import { createSignal, pushErrorHandler } from "@sarthakdev143/core";
 
 import type { Props, Renderable } from "./jsx";
 

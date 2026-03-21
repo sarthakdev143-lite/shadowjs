@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createSignal, onMount } from "@shadejs/core";
+import { createSignal, onMount } from "@sarthakdev143/core";
 
 import { ErrorBoundary, createDOMNode, h, mount } from "../src/index";
 
@@ -12,7 +12,7 @@ function waitForMicrotask(): Promise<void> {
   });
 }
 
-describe("@shadejs/runtime", () => {
+describe("@sarthakdev143/runtime", () => {
   it("creates static DOM nodes from descriptors", () => {
     const node = createDOMNode(h("div", { id: "app" }, "Hello ", h("span", null, "world")));
 

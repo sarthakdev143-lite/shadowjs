@@ -1,4 +1,4 @@
-import { createEffect } from "@shadejs/core";
+import { createEffect } from "@sarthakdev143/core";
 
 import { Fragment, type JSXDescriptor, type Primitive, type Props, type ReactiveChild, type Renderable } from "./jsx";
 import { configureKeyedReconciler, reconcileKeyedList, type KeyedNode } from "./reconciler";

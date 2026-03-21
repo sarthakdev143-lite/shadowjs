@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, type Accessor } from "@shadejs/core";
+import { createSignal, onCleanup, type Accessor } from "@sarthakdev143/core";
 
 export interface QueryState<T> {
   data: T | null;

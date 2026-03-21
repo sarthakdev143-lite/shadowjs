@@ -1,4 +1,4 @@
-import { createSignal, type Accessor, type Setter } from "@shadejs/core";
+import { createSignal, type Accessor, type Setter } from "@sarthakdev143/core";
 
 interface SignalEntry<T> {
   read: Accessor<T>;

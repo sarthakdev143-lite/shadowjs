@@ -1,6 +1,6 @@
 {
-  "name": "@shadejs/compiler",
-  "version": "0.3.2",
+  "name": "@sarthakdev143/compiler",
+  "version": "0.3.3",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

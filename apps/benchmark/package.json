@@ -8,8 +8,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shadejs/core": "workspace:*",
-    "@shadejs/runtime": "workspace:*"
+    "@sarthakdev143/core": "workspace:*",
+    "@sarthakdev143/runtime": "workspace:*"
   },
   "devDependencies": {
     "jsdom": "^26.0.0",

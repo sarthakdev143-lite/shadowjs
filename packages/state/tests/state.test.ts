@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createEffect } from "@shadejs/core";
+import { createEffect } from "@sarthakdev143/core";
 
 import { createMutation, createQuery, createStore } from "../src/index";
 import { getQueryRegistrySize, invalidateQueryKeys, resetQueryRegistryForTests } from "../src/query";
@@ -26,7 +26,7 @@ function createDeferred<T>() {
   };
 }
 
-describe("@shadejs/state", () => {
+describe("@sarthakdev143/state", () => {
   afterEach(() => {
     resetQueryRegistryForTests();
   });

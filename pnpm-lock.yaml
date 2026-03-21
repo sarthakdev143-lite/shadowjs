@@ -32,10 +32,10 @@ importers:
 
   apps/benchmark:
     dependencies:
-      '@shadejs/core':
+      '@sarthakdev143/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@shadejs/runtime':
+      '@sarthakdev143/runtime':
         specifier: workspace:*
         version: link:../../packages/runtime
     devDependencies:
@@ -78,28 +78,28 @@ importers:
 
   packages/runtime:
     dependencies:
-      '@shadejs/core':
+      '@sarthakdev143/core':
         specifier: workspace:*
         version: link:../core
 
   packages/shadejs:
     dependencies:
-      '@shadejs/compiler':
+      '@sarthakdev143/compiler':
         specifier: workspace:*
         version: link:../compiler
-      '@shadejs/core':
+      '@sarthakdev143/core':
         specifier: workspace:*
         version: link:../core
-      '@shadejs/runtime':
+      '@sarthakdev143/runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@shadejs/state':
+      '@sarthakdev143/state':
         specifier: workspace:*
         version: link:../state
 
   packages/state:
     dependencies:
-      '@shadejs/core':
+      '@sarthakdev143/core':
         specifier: workspace:*
         version: link:../core
 

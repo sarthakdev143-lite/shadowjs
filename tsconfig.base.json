@@ -8,10 +8,10 @@
     "paths": {
       "shadejs": ["packages/shadejs/src/index.ts"],
       "shadejs/compiler": ["packages/shadejs/src/compiler.ts"],
-      "@shadejs/compiler": ["packages/compiler/src/index.ts"],
-      "@shadejs/core": ["packages/core/src/index.ts"],
-      "@shadejs/runtime": ["packages/runtime/src/index.ts"],
-      "@shadejs/state": ["packages/state/src/index.ts"]
+      "@sarthakdev143/compiler": ["packages/compiler/src/index.ts"],
+      "@sarthakdev143/core": ["packages/core/src/index.ts"],
+      "@sarthakdev143/runtime": ["packages/runtime/src/index.ts"],
+      "@sarthakdev143/state": ["packages/state/src/index.ts"]
     },
     "jsx": "react",
     "jsxFactory": "h",

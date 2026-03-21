@@ -1,6 +1,6 @@
 {
   "name": "shadejs",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -30,9 +30,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@shadejs/compiler": "workspace:*",
-    "@shadejs/core": "workspace:*",
-    "@shadejs/runtime": "workspace:*",
-    "@shadejs/state": "workspace:*"
+    "@sarthakdev143/compiler": "workspace:*",
+    "@sarthakdev143/core": "workspace:*",
+    "@sarthakdev143/runtime": "workspace:*",
+    "@sarthakdev143/state": "workspace:*"
   }
 }

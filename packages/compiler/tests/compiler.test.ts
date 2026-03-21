@@ -6,16 +6,16 @@ import { shadejs } from "../src/plugin";
 import { generateRPCStub } from "../src/rpc-gen";
 import { transformServerImports } from "../src/transform";
 
-describe("@shadejs/compiler", () => {
+describe("@sarthakdev143/compiler", () => {
   it("passes through files without .server imports", () => {
-    const source = 'import { createSignal } from "@shadejs/core";\n\nconst count = createSignal(0);';
+    const source = 'import { createSignal } from "@sarthakdev143/core";\n\nconst count = createSignal(0);';
 
     expect(transformServerImports(source)).toBeNull();
   });
 
   it("replaces .server imports with fetch stubs", () => {
     const source = [
-      'import { createQuery } from "@shadejs/state";',
+      'import { createQuery } from "@sarthakdev143/state";',
       'import { getPosts } from "./posts.server";',
       "",
       "const posts = createQuery(getPosts);"
@@ -26,7 +26,7 @@ describe("@shadejs/compiler", () => {
     expect(transformed?.code).not.toContain('from "./posts.server"');
     expect(transformed?.code).toContain('fetch("/__rpc/posts/getPosts"');
     expect(transformed?.code).toContain("export const getPosts");
-    expect(transformed?.code).toContain('import { createQuery } from "@shadejs/state";');
+    expect(transformed?.code).toContain('import { createQuery } from "@sarthakdev143/state";');
   });
 
   it("returns a valid source map for transformed files", () => {

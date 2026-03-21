@@ -1,7 +1,7 @@
 {
   "name": "shadejs-workspace",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.3.3",
   "scripts": {
     "bench": "corepack pnpm --filter @shadejs/benchmark bench",
     "build": "corepack pnpm -r --if-present build",

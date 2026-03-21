@@ -1,4 +1,4 @@
-import { flushMountCallbacks, withCleanupScope } from "@shadejs/core";
+import { flushMountCallbacks, withCleanupScope } from "@sarthakdev143/core";
 
 import type { Renderable } from "./jsx";
 import { createDOMNode, disposeNode } from "./dom";

@@ -1,1 +1,1 @@
-export * from "@shadejs/compiler";
+export * from "@sarthakdev143/compiler";
