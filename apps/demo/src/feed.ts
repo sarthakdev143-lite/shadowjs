@@ -102,7 +102,7 @@ export function Feed() {
       "section",
       { className: "panel composer" },
       h("div", { className: "panel-head" }, h("h2", null, "Create a server post")),
-      h("label", { className: "field-label", for: "post-title" }, "Draft title"),
+      h("label", { className: "field-label", htmlFor: "post-title" }, "Draft title"),
       h("input", {
         className: "post-input",
         id: "post-title",

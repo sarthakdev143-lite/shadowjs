@@ -157,6 +157,11 @@ function applyProps(element: Element, props: Props): void {
       continue;
     }
 
+    if (key === "ref" && typeof value === "function") {
+      value(element);
+      continue;
+    }
+
     if (key.startsWith("on") && typeof value === "function") {
       element.addEventListener(key.slice(2).toLowerCase(), value as EventListener);
       continue;

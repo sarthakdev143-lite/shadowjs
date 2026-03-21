@@ -1,4 +1,5 @@
 import { provideContext, type Context } from "@sarthakdev143/core";
+import type { IntrinsicElements } from "./jsx-types";
 
 export const Fragment = Symbol("ShadowFragment");
 const providerMarker = Symbol("shadejs.provider");
@@ -8,10 +9,10 @@ export type Primitive = boolean | null | number | string | undefined;
 export type Props = Record<string, unknown> & { key?: Key };
 export type Renderable = Primitive | JSXDescriptor | ReactiveChild | Renderable[];
 export type ReactiveChild = () => Renderable;
-export type Component = {
-  bivarianceHack(props: Props & { children?: Renderable[] }): Renderable;
+export type Component<P extends object = Props> = {
+  bivarianceHack(props: P & { children?: Renderable[] }): Renderable;
 }["bivarianceHack"];
-export type Tag = Component | typeof Fragment | string;
+export type Tag = Component<Record<string, unknown>> | typeof Fragment | string;
 export type ProviderComponent<T> = Component & {
   [providerMarker]?: Context<T>;
 };
@@ -37,6 +38,12 @@ function flattenChildren(children: Renderable[]): Renderable[] {
   return flattened;
 }
 
+export function h<K extends keyof IntrinsicElements>(
+  tag: K,
+  props: IntrinsicElements[K] | null,
+  ...children: Renderable[]
+): JSXDescriptor;
+export function h<P extends object>(tag: Component<P>, props: P | null, ...children: Renderable[]): JSXDescriptor;
 export function h(tag: Tag, props: Props | null, ...children: Renderable[]): JSXDescriptor {
   return {
     children: flattenChildren(children),
@@ -67,18 +74,4 @@ export function renderWithProvider<T>(tag: Tag, props: Props, children: Renderab
   }
 
   return provideContext(context, props.value, fn);
-}
-
-declare global {
-  namespace JSX {
-    type Element = JSXDescriptor;
-
-    interface ElementChildrenAttribute {
-      children: {};
-    }
-
-    interface IntrinsicElements {
-      [elementName: string]: Props;
-    }
-  }
 }
