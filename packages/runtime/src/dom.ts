@@ -1,6 +1,14 @@
 import { createEffect } from "@sarthakdev143/core";
 
-import { Fragment, type JSXDescriptor, type Primitive, type Props, type ReactiveChild, type Renderable } from "./jsx";
+import {
+  Fragment,
+  renderWithProvider,
+  type JSXDescriptor,
+  type Primitive,
+  type Props,
+  type ReactiveChild,
+  type Renderable
+} from "./jsx";
 import { configureKeyedReconciler, reconcileKeyedList, type KeyedNode } from "./reconciler";
 
 type DOMPropertyTarget = Element & Record<string, unknown>;
@@ -276,11 +284,19 @@ function createElementNodes(descriptor: JSXDescriptor): Node[] {
   }
 
   if (typeof descriptor.tag === "function") {
-    return createDOMNodes(
-      descriptor.tag({
-        ...stripKeyProp(descriptor.props),
-        children: descriptor.children
-      })
+    const component = descriptor.tag;
+
+    return renderWithProvider(
+      component,
+      stripKeyProp(descriptor.props),
+      descriptor.children,
+      () =>
+        createDOMNodes(
+          component({
+            ...stripKeyProp(descriptor.props),
+            children: descriptor.children
+          })
+        )
     );
   }
 

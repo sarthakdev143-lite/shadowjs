@@ -1,6 +1,7 @@
-import { createMutation, createQuery, createSignal, createStore, h } from "@sarthakdev143/shadejs";
+import { createMutation, createQuery, createSignal, createStore, h, useContext } from "@sarthakdev143/shadejs";
 
 import { addPost, getPosts } from "./posts.server";
+import { ThemeContext } from "./theme";
 
 const [count, setCount] = createSignal(0);
 const composer = createStore({
@@ -10,6 +11,24 @@ const posts = createQuery(getPosts, "posts");
 const { mutate: submitPost, pending: isSubmitting } = createMutation(addPost, {
   invalidates: ["posts"]
 });
+
+function ThemeControls() {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+
+  return h(
+    "div",
+    { className: "theme-controls" },
+    h("span", { className: "theme-chip" }, () => `Theme: ${theme()}`),
+    h(
+      "button",
+      {
+        className: "theme-button",
+        onClick: toggleTheme
+      },
+      () => (theme() === "dark" ? "Switch to light" : "Switch to dark")
+    )
+  );
+}
 
 function renderPosts() {
   const state = posts();
@@ -48,9 +67,11 @@ async function handleAddPost(): Promise<void> {
 }
 
 export function Feed() {
+  const { theme } = useContext(ThemeContext);
+
   return h(
     "main",
-    { className: "shell" },
+    { className: "shell", "data-theme": theme },
     h(
       "section",
       { className: "hero panel" },
@@ -61,6 +82,7 @@ export function Feed() {
         { className: "lede" },
         "The counter uses signals, the composer uses createStore, and the feed uses compiler-generated RPC stubs."
       ),
+      h(ThemeControls, null),
       h(
         "div",
         { className: "counter-card" },

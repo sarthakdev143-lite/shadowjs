@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   batch,
+  createContext,
   createEffect,
   createMemo,
   createSignal,
@@ -10,8 +11,10 @@ import {
   onCleanup,
   onMount,
   pendingEffects,
+  provideContext,
   pushErrorHandler,
-  setEffectErrorHandler
+  setEffectErrorHandler,
+  useContext
 } from "../src/index";
 
 function waitForMicrotask(): Promise<void> {
@@ -28,7 +31,7 @@ afterEach(() => {
   });
 });
 
-describe("@shadejs/core", () => {
+describe("@sarthakdev143/core", () => {
   it("reads and writes signals", () => {
     const [count, setCount] = createSignal(0);
 
@@ -253,6 +256,64 @@ describe("@shadejs/core", () => {
     });
 
     expect(count()).toBe(5);
+  });
+
+  it("useContext returns the default value without a provider", () => {
+    const theme = createContext("dark");
+
+    expect(useContext(theme)).toBe("dark");
+  });
+
+  it("useContext returns the provided value inside provideContext", () => {
+    const theme = createContext("dark");
+
+    const value = provideContext(theme, "light", () => useContext(theme));
+
+    expect(value).toBe("light");
+  });
+
+  it("nested providers allow the inner value to shadow the outer value", () => {
+    const theme = createContext("dark");
+
+    const value = provideContext(theme, "light", () =>
+      provideContext(theme, "contrast", () => useContext(theme))
+    );
+
+    expect(value).toBe("contrast");
+  });
+
+  it("restores the outer value after an inner provider exits", () => {
+    const theme = createContext("dark");
+    let restoredValue = "";
+
+    provideContext(theme, "light", () => {
+      provideContext(theme, "contrast", () => {
+        expect(useContext(theme)).toBe("contrast");
+      });
+
+      restoredValue = useContext(theme);
+    });
+
+    expect(restoredValue).toBe("light");
+  });
+
+  it("context works with reactive signals as values", async () => {
+    const [theme, setTheme] = createSignal("dark");
+    const ThemeContext = createContext(theme);
+    const seenValues: string[] = [];
+
+    provideContext(ThemeContext, theme, () => {
+      const themedSignal = useContext(ThemeContext);
+
+      createEffect(() => {
+        seenValues.push(themedSignal());
+      });
+    });
+
+    setTheme("light");
+    await waitForMicrotask();
+
+    expect(seenValues).toEqual(["dark", "light"]);
   });
 
   it("does not crash the scheduler when an effect throws", async () => {

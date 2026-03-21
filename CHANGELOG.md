@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Context API helpers via `createContext`, `provideContext`, and `useContext`
+- Runtime `createProvider()` support for provider-backed component trees
+
+### Changed
+- Demo app now uses context for theme state instead of local prop wiring
+
 ## [0.3.0] - 2026-03-21
 
 ### Added
