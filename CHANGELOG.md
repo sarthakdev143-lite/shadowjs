@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Context API helpers via `createContext`, `provideContext`, and `useContext`
 - Runtime `createProvider()` support for provider-backed component trees
+- Typed intrinsic element props for `h()` plus compile-time JSX prop coverage
 
 ### Changed
 - Demo app now uses context for theme state instead of local prop wiring
+- Runtime package now exports `jsx-types` declarations for downstream tooling
 
 ## [0.3.0] - 2026-03-21
 
