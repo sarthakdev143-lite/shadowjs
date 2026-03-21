@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url";
 
 import { defineConfig } from "vite";
 
-import { murkjs } from "../../packages/murkjs/src/compiler";
+import { murkjs } from "../../packages/compiler/src/index";
 
 const workspaceRoot = fileURLToPath(new URL("../../", import.meta.url));
 
