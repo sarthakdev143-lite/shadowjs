@@ -3,8 +3,47 @@ import type { Computation } from "./signal";
 export let currentObserver: Computation | null = null;
 type ErrorHandler = (error: unknown, computation: Computation) => void;
 type CleanupScope = Array<() => void>;
+const contextStack = new Map<symbol, unknown[]>();
 const cleanupStack: CleanupScope[] = [];
 const errorHandlerStack: ErrorHandler[] = [];
+
+export interface Context<T> {
+  id: symbol;
+  defaultValue: T;
+}
+
+export function createContext<T>(defaultValue: T): Context<T> {
+  return {
+    defaultValue,
+    id: Symbol("shadejs.context")
+  };
+}
+
+export function provideContext<T, TResult>(context: Context<T>, value: T, fn: () => TResult): TResult {
+  const stack = contextStack.get(context.id) ?? [];
+  stack.push(value);
+  contextStack.set(context.id, stack);
+
+  try {
+    return fn();
+  } finally {
+    stack.pop();
+
+    if (stack.length === 0) {
+      contextStack.delete(context.id);
+    }
+  }
+}
+
+export function useContext<T>(context: Context<T>): T {
+  const stack = contextStack.get(context.id);
+
+  if (stack === undefined || stack.length === 0) {
+    return context.defaultValue;
+  }
+
+  return stack[stack.length - 1] as T;
+}
 
 export function runWithObserver<T>(observer: Computation, fn: () => T): T {
   const previousObserver = currentObserver;

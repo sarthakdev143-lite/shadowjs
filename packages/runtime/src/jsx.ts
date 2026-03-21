@@ -1,4 +1,7 @@
+import { provideContext, type Context } from "@sarthakdev143/core";
+
 export const Fragment = Symbol("ShadowFragment");
+const providerMarker = Symbol("shadejs.provider");
 
 export type Key = number | string;
 export type Primitive = boolean | null | number | string | undefined;
@@ -9,6 +12,9 @@ export type Component = {
   bivarianceHack(props: Props & { children?: Renderable[] }): Renderable;
 }["bivarianceHack"];
 export type Tag = Component | typeof Fragment | string;
+export type ProviderComponent<T> = Component & {
+  [providerMarker]?: Context<T>;
+};
 
 export interface JSXDescriptor {
   children: Renderable[];
@@ -37,6 +43,30 @@ export function h(tag: Tag, props: Props | null, ...children: Renderable[]): JSX
     props: props ?? {},
     tag
   };
+}
+
+export function createProvider<T>(context: Context<T>): ProviderComponent<T> {
+  const Provider: ProviderComponent<T> = (props: Props & { children?: Renderable[] }): Renderable => {
+    const children = props.children ?? [];
+    return children.length === 1 ? children[0] : children;
+  };
+
+  Provider[providerMarker] = context;
+  return Provider;
+}
+
+export function renderWithProvider<T>(tag: Tag, props: Props, children: Renderable[], fn: () => T): T {
+  if (typeof tag !== "function") {
+    return fn();
+  }
+
+  const context = (tag as ProviderComponent<unknown>)[providerMarker];
+
+  if (context === undefined) {
+    return fn();
+  }
+
+  return provideContext(context, props.value, fn);
 }
 
 declare global {
