@@ -9,6 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@sarthakdev143/router": "workspace:*",
     "@sarthakdev143/shadejs": "workspace:*"
   },
   "devDependencies": {

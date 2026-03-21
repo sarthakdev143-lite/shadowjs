@@ -10,6 +10,7 @@
       "@sarthakdev143/shadejs/compiler": ["packages/shadejs/src/compiler.ts"],
       "@sarthakdev143/compiler": ["packages/compiler/src/index.ts"],
       "@sarthakdev143/core": ["packages/core/src/index.ts"],
+      "@sarthakdev143/router": ["packages/router/src/index.ts"],
       "@sarthakdev143/runtime": ["packages/runtime/src/index.ts"],
       "@sarthakdev143/runtime/jsx-types": ["packages/runtime/src/jsx-types.ts"],
       "@sarthakdev143/state": ["packages/state/src/index.ts"]
