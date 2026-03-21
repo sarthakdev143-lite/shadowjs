@@ -1,4 +1,4 @@
-import { mount } from "@murkjs/runtime";
+import { mount } from "murkjs";
 
 import { Feed } from "./feed";
 import "./styles.css";

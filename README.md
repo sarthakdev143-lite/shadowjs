@@ -2,6 +2,16 @@
 
 MurkJS is a TypeScript-first experiment in fine-grained UI reactivity, compiler-owned server/client boundaries, and shared state primitives. It combines a signal core, a DOM runtime, a small state layer, and a Vite compiler plugin that rewrites `.server` imports into RPC stubs. It is not a React replacement, not production-ready, and not feature-complete; it is a proof-of-concept codebase for exploring the model.
 
+## Install
+
+For normal use, install the single public package:
+
+```bash
+npm install murkjs
+```
+
+Then use the framework APIs from `"murkjs"` and the Vite plugin from `"murkjs/compiler"`.
+
 ## Architecture
 
 ```text
@@ -37,7 +47,7 @@ pnpm dev
 ### Signals
 
 ```ts
-import { createEffect, createSignal } from "@murkjs/core";
+import { createEffect, createSignal } from "murkjs";
 
 const [count, setCount] = createSignal(0);
 
@@ -51,8 +61,7 @@ setCount((value) => value + 1);
 ### DOM binding
 
 ```ts
-import { mount, h } from "@murkjs/runtime";
-import { createSignal } from "@murkjs/core";
+import { createSignal, h, mount } from "murkjs";
 
 const [name, setName] = createSignal("MurkJS");
 
@@ -69,7 +78,7 @@ mount(
 ### createQuery
 
 ```ts
-import { createQuery } from "@murkjs/state";
+import { createQuery } from "murkjs";
 import { getPosts } from "./posts.server";
 
 const posts = createQuery(getPosts, "posts");
@@ -82,7 +91,7 @@ console.log(posts().error);
 ### createStore
 
 ```ts
-import { createStore } from "@murkjs/state";
+import { createStore } from "murkjs";
 
 const form = createStore({
   draft: "",
@@ -96,7 +105,7 @@ form.open = true;
 ### .server imports
 
 ```ts
-import { createMutation } from "@murkjs/state";
+import { createMutation } from "murkjs";
 import { addPost } from "./posts.server";
 
 const { mutate, pending, error } = createMutation(addPost, {
@@ -108,6 +117,17 @@ console.log(pending(), error());
 ```
 
 The compiler rewrites `.server` imports into client-side fetch stubs that call `"/__rpc/..."` routes.
+
+### Vite plugin
+
+```ts
+import { defineConfig } from "vite";
+import { murkjs } from "murkjs/compiler";
+
+export default defineConfig({
+  plugins: [murkjs()]
+});
+```
 
 ## Known Limitations
 

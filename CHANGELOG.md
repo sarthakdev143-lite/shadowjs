@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-21
+
+### Added
+- Single-package public entrypoint via `murkjs`
+- `murkjs/compiler` subpath export for the Vite plugin
+
+### Changed
+- Demo app and README now use `murkjs` as the default user-facing import surface
+- Workspace root package renamed to `murkjs-workspace` to free the public `murkjs` package name
+
 ## [0.2.0] - 2026-03-20
 
 ### Added

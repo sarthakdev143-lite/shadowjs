@@ -15,6 +15,7 @@ describe("RPC integration", () => {
       plugins: [murkjs()],
       resolve: {
         alias: {
+          murkjs: fileURLToPath(new URL("../../murkjs/src/index.ts", import.meta.url)),
           "@murkjs/core": fileURLToPath(new URL("../../core/src/index.ts", import.meta.url)),
           "@murkjs/runtime": fileURLToPath(new URL("../../runtime/src/index.ts", import.meta.url)),
           "@murkjs/state": fileURLToPath(new URL("../../state/src/index.ts", import.meta.url))

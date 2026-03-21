@@ -9,10 +9,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@murkjs/compiler": "workspace:*",
-    "@murkjs/core": "workspace:*",
-    "@murkjs/runtime": "workspace:*",
-    "@murkjs/state": "workspace:*"
+    "murkjs": "workspace:*"
   },
   "devDependencies": {
     "vite": "^5.4.0"

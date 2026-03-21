@@ -1,7 +1,7 @@
 {
-  "name": "murkjs",
+  "name": "murkjs-workspace",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "bench": "corepack pnpm --filter @murkjs/benchmark bench",
     "build": "corepack pnpm -r --if-present build",
