@@ -28,7 +28,7 @@ afterEach(() => {
   });
 });
 
-describe("@shadejs/core", () => {
+describe("@sarthakdev143/core", () => {
   it("reads and writes signals", () => {
     const [count, setCount] = createSignal(0);
 
