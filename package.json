@@ -7,7 +7,8 @@
     "build": "corepack pnpm -r --if-present build",
     "test": "corepack pnpm -r --if-present test",
     "typecheck": "corepack pnpm -r --if-present typecheck",
-    "dev": "corepack pnpm --filter @shadejs/demo dev"
+    "dev": "corepack pnpm --filter @shadejs/demo dev",
+    "release:verify": "node scripts/verify-release.mjs"
   },
   "devDependencies": {
     "@types/babel__traverse": "^7.28.0",

@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Verify release metadata
+        run: pnpm release:verify ${{ github.ref_name }}
+
       - name: Typecheck
         run: pnpm typecheck
 
@@ -38,7 +41,12 @@ jobs:
         run: pnpm build
 
       - name: Publish packages
-        run: pnpm -r publish --access public --no-git-checks
+        run: |
+          pnpm --filter @sarthakdev143/compiler publish --access public --no-git-checks
+          pnpm --filter @sarthakdev143/core publish --access public --no-git-checks
+          pnpm --filter @sarthakdev143/runtime publish --access public --no-git-checks
+          pnpm --filter @sarthakdev143/state publish --access public --no-git-checks
+          pnpm --filter @sarthakdev143/shadejs publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
